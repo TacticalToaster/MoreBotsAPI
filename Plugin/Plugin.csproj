@@ -7,7 +7,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
 	<Configurations>Debug;Release</Configurations>
-	<RootNamespace>TacticalToasterUNTARGH</RootNamespace>
+	<RootNamespace>MoreBotsAPI</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

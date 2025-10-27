@@ -7,6 +7,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Configurations>Debug;Release</Configurations>
+    <RootNamespace>MoreBotsAPI.Prepatch</RootNamespace>
   </PropertyGroup>
   
   <ItemGroup>
