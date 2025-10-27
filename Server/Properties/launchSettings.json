@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "tacticaltoaster-untargohome": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:61355;http://localhost:61356"
+    }
+  }
+}
