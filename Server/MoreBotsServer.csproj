@@ -24,4 +24,10 @@
     <PackageReference Include="SPTarkov.Server.Core" Version="4.0.0" />
     <PackageReference Include="SPTarkov.Reflection" Version="4.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+    <Folder Include="Models\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
 </Project>
