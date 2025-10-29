@@ -1,4 +1,4 @@
-# MoreBotsAPI for SPT 4.0.x
+# MoreBotsAPI for SPT 4.0.X
 A client and server API that makes making custom bots a little less infuriating. Create a prepatch and server mod that implements this API and you'll have the basis for introducing new bosses, factions, and any other custom bot you can think of (maybe, this is still Tarkov).
 
 ### Table of Contents
