@@ -45,6 +45,7 @@ public class MoreBotsCustomBotConfigService(
             {
                 var botConfigData = await jsonUtil.DeserializeFromFileAsync<BotTypeConfig>(file);
                 var botTypeName = System.IO.Path.GetFileNameWithoutExtension(file);
+                var botTypeNameLower = botTypeName.ToLower();
 
                 if (botConfigData == null)
                 {
@@ -61,27 +62,27 @@ public class MoreBotsCustomBotConfigService(
 
                 if (botConfigData.Durability != null)
                 {
-                    _botConfig.Durability.BotDurabilities[botTypeName] = botConfigData.Durability;
+                    _botConfig.Durability.BotDurabilities[botTypeNameLower] = botConfigData.Durability;
                 }
 
                 if (botConfigData.ItemSpawnLimits != null)
                 {
-                    _botConfig.ItemSpawnLimits[botTypeName] = botConfigData.ItemSpawnLimits;
+                    _botConfig.ItemSpawnLimits[botTypeNameLower] = botConfigData.ItemSpawnLimits;
                 }
 
                 if (botConfigData.EquipmentFilters != null)
                 {
-                    _botConfig.Equipment[botTypeName] = botConfigData.EquipmentFilters;
+                    _botConfig.Equipment[botTypeNameLower] = botConfigData.EquipmentFilters;
                 }
 
                 if (botConfigData.CurrencyStackSize != null)
                 {
-                    _botConfig.CurrencyStackSize[botTypeName] = botConfigData.CurrencyStackSize;
+                    _botConfig.CurrencyStackSize[botTypeNameLower] = botConfigData.CurrencyStackSize;
                 }
 
                 if (botConfigData.MustHaveUniqueName == true)
                 {
-                    _botConfig.BotRolesThatMustHaveUniqueName.Add(botTypeName);
+                    _botConfig.BotRolesThatMustHaveUniqueName.Add(botTypeNameLower);
                 }
             }
         }

@@ -11,6 +11,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="defaultSettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="defaultSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Prepatch\Prepatch.csproj" />
   </ItemGroup>
 

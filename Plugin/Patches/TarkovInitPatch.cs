@@ -3,12 +3,7 @@ using EFT;
 using EFT.InputSystem;
 using MoreBotsAPI.Interop;
 using SPT.Reflection.Patching;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoreBotsAPI.Patches
 {
@@ -25,7 +20,11 @@ namespace MoreBotsAPI.Patches
             bool sainLoaded = Chainloader.PluginInfos.ContainsKey("me.sol.sain");
 
             if (sainLoaded)
+            {
+                Logger.LogMessage("SAIN detected, initializing SAIN interop for MoreBotsAPI.");
+                new SAINInterop().Init();
                 SAINInterop.AddSAINLayers();
+            }
         }
     }
 }

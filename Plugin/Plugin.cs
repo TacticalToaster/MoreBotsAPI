@@ -1,9 +1,7 @@
 ﻿using BepInEx;
-using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using EFT;
 using HarmonyLib;
-using MoreBotsAPI.Interop;
 using MoreBotsAPI.Patches;
 using Newtonsoft.Json;
 using System;
@@ -47,7 +45,7 @@ namespace MoreBotsAPI
                     else
                         excludedDifficulties.Add((WildSpawnType)botType.WildSpawnTypeValue, defaultExcludedDifficulties);
 
-                    Logger.LogInfo($"Successfully added {botType.WildSpawnTypeName} to the excluded difficulties list");
+                    Logger.LogInfo($"Successfully added {botType.WildSpawnTypeName} : {botType.WildSpawnTypeValue} to the excluded difficulties list");
                 }
                 Traverse.Create(typeof(BotSettingsRepoClass)).Field<Dictionary<WildSpawnType, GClass790>>("Dictionary_0").Value.Add((WildSpawnType)botType.WildSpawnTypeValue, new GClass790(botType.IsBoss, botType.IsFollower, botType.IsHostileToEverybody, $"ScavRole/{botType.ScavRole}", (ETagStatus)0));
 
@@ -55,19 +53,6 @@ namespace MoreBotsAPI
                 {
                     BotSettingsRepoClass.Dictionary_0[(WildSpawnType)botType.WildSpawnTypeValue].CountAsBossForStatistics = botType.CountAsBossForStatistics.Value;
                 }
-            }
-
-            bool sainLoaded = Chainloader.PluginInfos.ContainsKey("me.sol.sain");
-
-            if (sainLoaded)
-            {
-                Logger.LogMessage("SAIN detected, initializing SAIN interop for MoreBotsAPI.");
-                new SAINInterop().Init();
-                //new SAINPatch().Enable();
-            }
-            else
-            {
-                Logger.LogMessage("SAIN not detected, skipping SAIN interop for MoreBotsAPI.");
             }
 
             new TarkovInitPatch().Enable(); //For Sain stuff

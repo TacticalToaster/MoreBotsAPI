@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace MoreBotsAPI.Prepatch
 {
-    public static class WildSpawnTypePatch
+    public static class CustomTypesLoadPatch
     {
         public static IEnumerable<string> TargetDLLs { get; } = new[] { "Assembly-CSharp.dll" };
 
@@ -18,12 +18,22 @@ namespace MoreBotsAPI.Prepatch
 
             if (!ShouldPatchAssembly())
             {
-                Logger.CreateLogSource("MoreBotsAPI Prepatch")
+                Logger.CreateLogSource("MoreBotsAPI Prepatch Loader")
                       .LogWarning("MoreBotsAPI plugin not detected, not patching assembly. Make sure you have installed or uninstalled the mod correctly.");
                 return;
             }
+            else
+            {
+                Logger.CreateLogSource("MoreBotsAPI Prepatch Loader")
+                      .LogInfo("MoreBotsAPI plugin detected, patching assembly to load custom wild spawn types.");
+            }
 
-            //CustomWildSpawnTypeManager.AddType("CustomBotType1", "custom_role_1", 1);
+            var wildSpawnType = patchAssembly.MainModule.GetType("EFT.WildSpawnType");
+
+            foreach (var botType in CustomWildSpawnTypeManager.GetCustomWildSpawnTypes())
+            {
+                Utils.AddEnumValue(ref wildSpawnType, botType.WildSpawnTypeName, botType.WildSpawnTypeValue);
+            }
         }
 
         private static bool ShouldPatchAssembly()

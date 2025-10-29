@@ -2,7 +2,9 @@ using MoreBotsServer.Services;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Spt.Mod;
+using SPTarkov.Server.Core.Utils;
 using System.Reflection;
 
 namespace MoreBotsServer;
@@ -37,5 +39,39 @@ public class MoreBotsLib(
     {
         await customBotTypeService.CreateCustomBotTypes(assembly);
         await customBotConfigService.LoadCustomBotConfigs(assembly);
+    }
+}
+
+[Injectable]
+public class MoreBotsSettingsRouter : DynamicRouter
+{
+    private static HttpResponseUtil _httpResponseUtil;
+    private static MoreBotsCustomBotTypeService _customBotTypeService;
+
+    public MoreBotsSettingsRouter(
+        JsonUtil jsonUtil,
+        HttpResponseUtil httpResponseUtil,
+        MoreBotsCustomBotTypeService customBotTypeService) : base(jsonUtil, GetRoutes())
+    {
+        _httpResponseUtil = httpResponseUtil;
+        _customBotTypeService = customBotTypeService;
+    }
+
+    private static List<RouteAction> GetRoutes()
+    {
+        return [
+            new RouteAction(
+                "/singleplayer/settings/bot/difficulties",
+                async (
+                    url,
+                    info,
+                    sessionID,
+                    output
+                ) => {
+                    var result = _customBotTypeService.GetBotDifficulties(url, (EmptyRequestData)info, sessionID, output);
+                    return await new ValueTask<string>(_httpResponseUtil.NoBody(result));
+                }
+            )
+        ];
     }
 }

@@ -3,6 +3,7 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Controllers;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Server;
 using SPTarkov.Server.Core.Models.Utils;
@@ -22,6 +23,7 @@ public class MoreBotsCustomBotTypeService(
 )
 {
     private DatabaseTables? _databaseTables;
+    public List<string> LoadedBotTypes { get; } = new();
 
     public async Task CreateCustomBotTypes(Assembly assembly, string? relativePath = null)
     {
@@ -46,18 +48,70 @@ public class MoreBotsCustomBotTypeService(
                 var botTypeData = await jsonUtil.DeserializeFromFileAsync<BotType>(file);
                 var botTypeName = System.IO.Path.GetFileNameWithoutExtension(file);
 
-                if (botTypeData != null)
+                botTypeName = botTypeName.ToLower();
+
+                logger.Info($"Loading custom bot type: {botTypeName}");
+
+                if (botTypeData == null)
                 {
                     logger.Warning($"Could not read {file} as bot type data! Skipping.");
                     continue;
                 }
 
                 _databaseTables.Bots.Types[botTypeName] = botTypeData;
+                LoadedBotTypes.Add(botTypeName);
+
+                logger.Warning($"Successfully loaded custom bot type: {botTypeName} {LoadedBotTypes[0]} {_databaseTables.Bots.Types[botTypeName] != null}");
             }
         }
         catch (Exception ex)
         {
             logger.Error($"Error loading custom bot types: {ex.Message}");
+        }
+    }
+
+    public Dictionary<string, Dictionary<string, DifficultyCategories>>? GetBotDifficulties(string url, EmptyRequestData info, string sessionID, string output)
+    {
+        try
+        {
+            var botDifficulties = _databaseTables.Bots.Types;
+
+            Dictionary<string, Dictionary<string, DifficultyCategories>> result = new();
+
+            if (output != null && output != string.Empty)
+            {
+                result = jsonUtil.Deserialize<Dictionary<string, Dictionary<string, DifficultyCategories>>>(output);
+            }
+
+            if (botDifficulties == null || !botDifficulties.Any())
+            {
+                logger.Warning("Bot difficulties data is missing or empty.");
+                return null;
+            }
+
+            foreach (var botType in LoadedBotTypes)
+            {
+                logger.Info($"Processing bot type: {botType}");
+
+                var botData = botDifficulties.ContainsKey(botType) ? botDifficulties[botType] : null;
+
+                if (!result.ContainsKey(botType))
+                {
+                    result[botType] = new Dictionary<string, DifficultyCategories>();
+                }
+
+                result[botType]["easy"] = botData.BotDifficulty["easy"];
+                result[botType]["normal"] = botData.BotDifficulty["normal"];
+                result[botType]["hard"] = botData.BotDifficulty["hard"];
+                result[botType]["impossible"] = botData.BotDifficulty["impossible"];
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            logger.Error($"Error retrieving custom bot difficulties: {ex.Message}");
+            return null;
         }
     }
 }

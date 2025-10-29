@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Mono.Cecil;
 using MoreBotsAPI.Prepatch;
+using System.Collections.Generic;
 
 namespace MoreBotsAPI
 {
@@ -27,14 +24,23 @@ namespace MoreBotsAPI
             }
         }
 
-        public static void AddType(string typeName, string scavRole, int baseBrain, bool isBoss = false, bool isFollower = false, bool isHostileToEverybody = false, bool countAsBossForStatistics = false)
+        public static void RegisterWildSpawnType(AssemblyDefinition assembly, string typeName, string scavRole, int baseBrain, bool isBoss = false, bool isFollower = false, bool isHostileToEverybody = false, bool countAsBossForStatistics = false)
         {
             CustomWildSpawnType newType = new CustomWildSpawnType(_spawnTypeIndex, typeName, scavRole, baseBrain, isBoss, isFollower, isHostileToEverybody);
             _spawnTypeIndex++;
 
             newType.SetCountAsBossForStatistics(countAsBossForStatistics);
 
-            AddType(newType);
+            RegisterWildSpawnType(newType, assembly);
+        }
+
+        public static void RegisterWildSpawnType(CustomWildSpawnType customType, AssemblyDefinition assembly)
+        {
+            var wildSpawnType = assembly.MainModule.GetType("EFT.WildSpawnType");
+
+            Utils.AddEnumValue(ref wildSpawnType, customType.WildSpawnTypeName, customType.WildSpawnTypeValue);
+
+            AddType(customType);
         }
 
         // Create a list of ints that correspond to the WildSpawnType value that can form a group (e.g., a boss and its followers, or a squad of the same type)
