@@ -72,6 +72,8 @@ public class MoreBotsCustomBotTypeService(
 
     public Dictionary<string, Dictionary<string, DifficultyCategories>>? GetBotDifficulties(string url, EmptyRequestData info, string sessionID, string output)
     {
+        if (_databaseTables == null) _databaseTables = databaseService.GetTables();
+
         try
         {
             var botDifficulties = _databaseTables.Bots.Types;
