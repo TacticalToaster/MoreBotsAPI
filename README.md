@@ -1,63 +1,123 @@
-# UNTAR Go Home!
-## Version 1.0.0
+# MoreBotsAPI for SPT 4.0.x
+A client and server API that makes making custom bots a little less infuriating. Create a prepatch and server mod that implements this API and you'll have the basis for introducing new bosses, factions, and any other custom bot you can think of (maybe, this is still Tarkov).
 
-Yet they're still here in Tarkov...
+### Table of Contents
 
-UNTAR Go Home! adds UNTAR as a proper faction to SPT. Encounter roving patrols of peacekeepers. Their ROE states that they are only to shoot if threatened, so try not to piss them off!
+ - [Features](#features)
+ - [What's not included](#notincluded)
+ - [Installation](#installation)
+ - [Using the API](#using)
+	 - [Example Repo](#example)
+	 - [Client](#client)
+	 - [Server](#server)
+	 - [Enum Practice](#enumpractice)
+	 - [Used Enums](#usedenum)
 
-# Features
+<a id="features"></a>
+## Features
+Adds to WildSpawnType enum on client
+Server properly sends custom bot data to client
+Defining custom bot data in a simple format with JSONs on the server
+Defining client-specific data in a client prepatcher
+SAIN compatability with a little setup
+<a id="notincluded"></a>
+## What's not included
+**Locales**, reference SPT server mod examples for that
+**Spawning of custom bots**, either implement that using the boss spawn system (UNTAR Go Home uses this method) or create your own system
+**Custom behaviors**, use BigBrain if you intend on creating completely custom behavior not already found in base EFT bots.
+<a id="installation"></a>
+## Installation
+ 1. Download a release version from GitHub or SPT Forge.
+ 2. Open the .7z file using 7-Zip
+ 3. Drag the SPT and BepInEx folders into your main SPT directory, those folders alongside EscapeFromTarkov.exe should already exist.
+<a id="using"></a>
+# Using the API as a modder
+To use the API, you'll need to make a client prepatcher and a server mod.
+<a id="example"></a>
+## Example Repo
+https://github.com/TacticalToaster/MoreBotsAPI-Example
+<a id="client"></a>
+## Client Prepatcher
+You'll need two classes, the prepatcher plugin class and the patch that implements your custom bots. The plugin must have this API's prepatcher as a hard dependency using the following attribute tag
 
-## New Bot Types
-UNTARGH adds completely custom bot types that don't replace existing bots, each with their own loadouts and roles.
+    [BepInDependency("com.morebotsapiprepatch.tacticaltoaster", BepInDependency.DependencyFlags.HardDependency)]
 
-### UNTAR Grunt
-The bulk of the UNTAR mission's combat-ready forces. They're meant to "keep the peace" and protect civilian members of the mission while they perform their duties. Expect them to be armed with a variety of western weapons while wearing standard UNTAR armor.
+Your patch should target ``Assembly-CSharp.dll``. In there you will define the custom information regarding your new bot type(s). Here is an example of what your patch class should look like (a similar example can be found in the example repo linked above):
 
-### UNTAR Squad Lead
-An NCO in charge of a squad of UNTAR grunts. They keep the group in check while donning equipment from their origin nation. They have fancier weapons and gear on average.
+```c#
+public static class WildSpawnTypePatch
+{
+    public static IEnumerable<string> TargetDLLs { get; } = new[] { "Assembly-CSharp.dll" };
 
-### UNTAR Officer
-Officers are in charge of ensuring that the mission's objectives (extract capable civilians, distribute aid to those stranded, and ~~make a f#$% ton of money~~) are adhered to and completed. Currently, they're functionally similar to squad leaders besides the fact they always wear a blue beret, but I do intend on expanding their purpose.
+    public static void Patch(ref AssemblyDefinition assembly)
+    {
+        // 1069 is the enum value for your custom type, followed by the enum name. The other variables are explained in the CustomWildSpawnType class comments
+        var exampleBot = new CustomWildSpawnType(1069, "bossExampleBot", "Boss", 32, true, false, false);
 
-## UNTAR Patrols
-Patrols can spawn across several maps in randomly generated patrols at random times during the raid. Their size and composition varies, with some larger patrols being lead by officers and potentially having multiple squad leaders. As more UNTAR types are added patrols will become more varied.
+        exampleBot.SetCountAsBossForStatistics(true);
+        // Should having max fence loyalty stop this bot from warning your pscav. Doesn't affect hostility (that is defined in the type json), only interaction with warn behavior.
+        exampleBot.SetShouldUseFenceNoBossAttack(true, false);
+        // Exclude all difficulties except Normal. This is done by default if you do not set excluded difficulties.
+        exampleBot.SetExcludedDifficulties(new List<int> { 0, 2, 3 });
 
-### Maps
-Settings related to patrols can be adjusted in the config/main.json server file. This includes adding new maps and zones!
-Patrols will pick a random available spawn zone found in the config file and a time in a defined range. Maps can be configured to have multiple patrols rolled (which also means you can encounter multiple patrols in one raid).
+        SAINSettings settings = new SAINSettings(exampleBot.WildSpawnTypeValue)
+        {
+            Name = "Example Bot",
+            Description = "An example bot created using MoreBotsAPI.",
+            // This is the bot section your bot will appear under, like Bosses, Followers, PMCs, etc.
+            Section = "Custom",
+            // Not used unless you didn't define BrainsToApply
+            BaseBrain = "Assault",
+            // Look for the ShortName in the class of the brains you want to apply to.
+            BrainsToApply = new List<string> { "Assault" }, 
+        };
 
-Currently, patrols will spawn on:
+        exampleBot.SetSAINSettings(settings);
 
-- Woods, 2 possible patrols at a time, decent spawn chance, small-mid sized
-- Customs, 1 possible patrol, good spawn chance, mid-big sized
-- Interchange, 2 possible patrols at a time, meh spawn chance, small-mid sized
-- Shoreline, 1 possible patrol, decent spawn chance, small-mid sized
+        // This is what registers your new spawn type, adding it to the WildSpawnType enum and manager for custom bot types.
+        CustomWildSpawnTypeManager.RegisterWildSpawnType(exampleBot, assembly);
 
-## Config
-The config folder in the server mod lets you configure things such as patrol spawning and supported maps. Adjust the conditions for different roles to spawn in patrols or add the chance for patrols to spawn on other maps. I'll add detailed explanations of the config options later but they're fairly self-explanatory at the moment.
+        // This allows the example bot to be the boss in a group with itself or normal scavs.
+        // If you want your bot to be solo you don't have to worry about this.
+        CustomWildSpawnTypeManager.AddSuitableGroup(new List<int> { 1069, 1 });
+    }
 
-# Compatability
+}
+```
 
-## SAIN
-UNTARGH has *full* (I might've missed something. If you notice any problems with SAIN or errors do let me know!) compatability with SAIN, with UNTAR bots using SAIN behaviors and having dedicated config options in SAIN's settings.
+This is everything you need to set your bot up on the client.
+<a id="server"></a>
+## Server Mod
+Your server mod should have this API's server mod set as a dependency. Wherever you define your mod's metadata, make sure you add to the ModDependencies list:
 
-## Spawn Mods
-UNTARGH has no specific compatability code at the moment with any spawn mods. I still have to do some testing and collaborate with some authors to make sure UNTAR spawning works 100% with spawn mods. If you encounter any issues with spawning while using these sorts of mods I won't offer support, but I will accept logs so I can work on ironing out compatability.
+``"com.morebotsapi.tacticaltoaster", new SemanticVersioning.Range(">=1.0.0") ``
 
-### MOAR
-MOAR seems to work with UNTARGH, but there's no additional compatability. Basically, UNTAR works off my spawn system, everything else works on MOAR's system.
+Set the version range to what's applicable to your mod. If you require features from a later version of this API, make sure the dependency reflects that so we both have less time figuring out a user has the wrong version of the API installed.
 
-### ABPS
-ABPS currently prevents UNTAR from spawning entirely but AcidPhantasm is adding compatability with UNTARGH next ABPS update (tysm <3) so please standby!
+To load your bots on the server, you'll want to have an injectable class with a TypePriority of ``OnLoadOrder.PostDBModLoader + 2``. Anything greater than 2 also works. Make sure your class implements ``IOnLoad``. After that, you'll want to inject the API ``MoreBotsServer.MoreBotsAPI`` into your class using the constructor. Finally, you'll want to call ``LoadBots`` on the API, passing your mod's assembly with ``Assembly.GetExecutingAssembly()``. From here, the API will load your custom bot data in your mod's folder using the file path standard defined in the API.
 
-## Other Bot Behavior Mods (Questing, Looting, etc)
-UNTARGH is relatively untested with these mods. Questing Bots and Looting Bots don't conflict at the very least, so you can play with those just fine from what I can tell. I'll be conducting some testing and patching in necessary compatability fixes. Eventually, I want to include functionality related to Questing Bots in particular but that's for a later update.
+```
+db/bots/types (BotType data goes here)
+db/bots/config (BotConfig data goes here)
+```
 
-# Credits and Thanks
-Thanks to GrooveypenguinX and nameless___ for letting me reference yalls code, and specifically Groovey for giving me the run down on what I needed to do to get custom bots working. This mod wouldn't exist without that starting point.
+You can find an example of all this in the example repo above.
 
-Thanks to Solarint for making a mod I felt was necessary to have compatability for before publishing this mod. No, seriously, SAIN is amazing and if you don't already have it installed give it a look.
+If you need to reference custom bot WildSpawnTypes in your server data files, use the int value of the enum instead of the name. The server currently doesn't support the names of custom enums but is okay with the int value.
+<a id="enumpractice"></a>
+## Enum Value Practice
+To avoid conflicting enum values, I recommend following this format for deciding the value of your enums:
 
-Thanks DrakiXYZ for BigBrains and Waypoints, absolutely necessary mods for anything bot-related. I'll be using BigBrains heavily in future versions of this mod (and more coming mods) to implment some custom behaviors. The less I have to touch BSG's code the better lmao.
+ 1. Pick two uppercase characters, preferably related to your username or mod. For example, I'd pick TT if going by my username.
+ 2. Get the ASCII decimal value of those characters (make sure they're for uppercase). TT = 8484
+ 3. Add two zeros, that's your starting point of enum values. For me, that would be 848400.
+ 4. You now can safely (unless someone picks your same characters) use up to 100 values. For me, my range would end at 848499
 
-Goes without saying that thanks should be given to the SPT team for enabling any of this in the first place. Yall rock!
+Don't use 0-200. This avoids clashing with base Tarkov values and gives room for any new bot types they might add in the future.
+
+I will try to document the values people use in their mods here in the next section. If you use this API, include what values and names you use on your mod page and readme and try to notify me so I can keep them cataloged.
+<a id="usedenum"></a>
+## Used Enum Values
+
+### UNTAR Go Home (TacticalToaster)
+1170-1179
