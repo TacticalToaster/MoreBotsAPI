@@ -13,7 +13,7 @@ namespace MoreBotsAPI
 
         private static int _spawnTypeIndex = 1000;
 
-        public static void AddType(CustomWildSpawnType customType)
+        private static void AddType(CustomWildSpawnType customType)
         {
             _customWildSpawnTypes.Add(customType);
             _customWildSpawnTypeDict[customType.WildSpawnTypeValue] = customType;
@@ -34,6 +34,7 @@ namespace MoreBotsAPI
             RegisterWildSpawnType(newType, assembly);
         }
 
+        // Register your custom bot types with this
         public static void RegisterWildSpawnType(CustomWildSpawnType customType, AssemblyDefinition assembly)
         {
             var wildSpawnType = assembly.MainModule.GetType("EFT.WildSpawnType");

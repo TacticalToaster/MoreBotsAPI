@@ -5,21 +5,33 @@ namespace MoreBotsAPI
 {
     public class CustomWildSpawnType
     {
+        // Enum int value of your bot
         private int _wildSpawnTypeValue = 1000;
+        // Enum name for your bot
         private string _wildSpawnTypeName = "example";
+        // Role used in the end of raid screen. Valid examples include Boss, Follower, Scav. You can add custom ones as long as you also add to locales
         private string _scavRole = "Scav";
-        private int _baseBrain = 1; // Corresponds to EFT.WildSpawnType
-        private bool _isBoss = false; // Required to be true if bot is meant to have followers (raiders and rogues have both isBoss true and isFollower true)
-        private bool _isFollower = false; // Required to be true so bot is treated as a follower
+        // Corresponds to EFT.WildSpawnType for brain of bots
+        private int _baseBrain = 1;
+        // Required to be true if bot is meant to have followers (raiders and rogues have both isBoss true and isFollower true)
+        private bool _isBoss = false;
+        // Required to be true so bot is treated as a follower
+        private bool _isFollower = false;
+        // This is set true for cultists
         private bool _isHostileToEverybody = false;
-        private bool? _countAsBossForStatistics = null; // If null, defaults to isBoss value
+        // If null, defaults to isBoss value
+        private bool? _countAsBossForStatistics = null;
 
+        // If you have max fence rep and this is true, then the bot will not attempt to warn you. Doesn't affect hostility, that is defined in the json data.
         private bool _shouldUseFenceNoBossAttackScav = true;
+        // Same as above but also for your pmc, in case you wanted to make your bot neutral to pmcs and warn them unless you have max fence rep
         private bool _shouldUseFenceNoBossAttackPMC = false;
 
+        // Settings related to SAIN compatibility
         private SAINSettings _SAINSettings;
 
-        private List<int> _excludedDifficulties; // List of difficulties (EFT.BotDifficulty) that this type should NOT use
+        // List of difficulties (EFT.BotDifficulty) that this type should NOT use
+        private List<int> _excludedDifficulties;
 
         public CustomWildSpawnType(int value, string name, string scavRole, int baseBrain, bool isBoss = false, bool isFollower = false, bool isHostileToEverybody = false)
         {
