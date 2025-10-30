@@ -98,7 +98,7 @@ public class MoreBotsCustomBotTypeService(
 
             var botTypeData = await jsonUtil.DeserializeFromFileAsync<BotType>(file);
 
-            if (botTypeData != null)
+            if (botTypeData == null)
             {
                 logger.Warning($"Could not read {file} as bot type data! Skipping loading shared bot types.");
                 return;
