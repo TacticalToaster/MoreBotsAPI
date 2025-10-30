@@ -25,6 +25,9 @@ public class MoreBotsCustomBotTypeService(
     private DatabaseTables? _databaseTables;
     public List<string> LoadedBotTypes { get; } = new();
 
+    // Create custom bot types using your mod db folders.
+    // Do note that types get added to the database fully lowercase. SPT requires it like that to work.
+    // If you want to edit the type after it is created, make sure you account for the lowercase name when indexing the table.
     public async Task CreateCustomBotTypes(Assembly assembly, string? relativePath = null)
     {
         if (_databaseTables == null) _databaseTables = databaseService.GetTables();
