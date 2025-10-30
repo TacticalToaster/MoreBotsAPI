@@ -61,12 +61,61 @@ public class MoreBotsCustomBotTypeService(
                 _databaseTables.Bots.Types[botTypeName] = botTypeData;
                 LoadedBotTypes.Add(botTypeName);
 
-                logger.Warning($"Successfully loaded custom bot type: {botTypeName} {LoadedBotTypes[0]} {_databaseTables.Bots.Types[botTypeName] != null}");
+                logger.Info($"Successfully loaded custom bot type: {botTypeName}");
             }
         }
         catch (Exception ex)
         {
             logger.Error($"Error loading custom bot types: {ex.Message}");
+        }
+    }
+
+    public async Task CreateCustomBotTypesShared(Assembly assembly, string sharedFileName, List<string> botTypeNames)
+    {
+        if (_databaseTables == null) _databaseTables = databaseService.GetTables();
+
+        try
+        {
+            var assemblyLocation = modHelper.GetAbsolutePathToModFolder(assembly);
+            var botTypeDir = System.IO.Path.Combine("db", "bots", "sharedTypes");
+            var finalDir = System.IO.Path.Combine(assemblyLocation, botTypeDir);
+
+            if (!Directory.Exists(finalDir))
+            {
+                logger.Warning($"Directory for shared custom bot types not found at {finalDir}");
+                return;
+            }
+
+            var files = Directory.GetFiles(finalDir, sharedFileName + ".json*");
+
+            if (!files.Any())
+            {
+                logger.Warning($"Shared bot type file {sharedFileName} not found at {finalDir}");
+                return;
+            }
+
+            var file = files[0];
+
+            var botTypeData = await jsonUtil.DeserializeFromFileAsync<BotType>(file);
+
+            if (botTypeData != null)
+            {
+                logger.Warning($"Could not read {file} as bot type data! Skipping loading shared bot types.");
+                return;
+            }
+
+            foreach (var botTypeName in botTypeNames)
+            {
+                var botTypeNameLower = botTypeName.ToLower();
+                _databaseTables.Bots.Types[botTypeNameLower] = botTypeData;
+                LoadedBotTypes.Add(botTypeNameLower);
+
+                logger.Info($"Successfully loaded shared custom bot type: {botTypeNameLower}");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.Error($"Error loading shared custom bot types: {ex.Message}");
         }
     }
 

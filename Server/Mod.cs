@@ -40,6 +40,12 @@ public class MoreBotsAPI(
         await customBotTypeService.CreateCustomBotTypes(assembly);
         await customBotConfigService.LoadCustomBotConfigs(assembly);
     }
+
+    public async Task LoadBotsShared(Assembly assembly, string sharedFileName, List<string> botTypeNames)
+    {
+        await customBotTypeService.CreateCustomBotTypesShared(assembly, sharedFileName, botTypeNames);
+        await customBotConfigService.LoadCustomBotConfigsShared(assembly, sharedFileName, botTypeNames);
+    }
 }
 
 [Injectable]
