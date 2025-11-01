@@ -142,6 +142,8 @@ public class MoreBotsCustomBotConfigService(
             {
                 var botTypeNameLower = botTypeName.ToLowerInvariant();
 
+                botConfigData = await jsonUtil.DeserializeFromFileAsync<BotTypeConfig>(file);
+
                 if (ProcessBotConfig(botConfigData, botTypeName))
                 {
                     logger.Info($"Loaded custom shared bot config for: {botTypeNameLower}");
