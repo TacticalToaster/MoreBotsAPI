@@ -53,7 +53,7 @@ public class MoreBotsCustomBotTypeService(
                 var botTypeData = await jsonUtil.DeserializeFromFileAsync<BotType>(file);
                 var botTypeName = System.IO.Path.GetFileNameWithoutExtension(file);
 
-                botTypeName = botTypeName.ToLower();
+                botTypeName = botTypeName.ToLowerInvariant();
 
                 logger.Info($"Loading custom bot type: {botTypeName}");
 
@@ -111,7 +111,7 @@ public class MoreBotsCustomBotTypeService(
 
             foreach (var botTypeName in botTypeNames)
             {
-                var botTypeNameLower = botTypeName.ToLower();
+                var botTypeNameLower = botTypeName.ToLowerInvariant();
                 _databaseTables.Bots.Types[botTypeNameLower] = botTypeData;
                 LoadedBotTypes.Add(botTypeNameLower);
 
@@ -166,7 +166,7 @@ public class MoreBotsCustomBotTypeService(
 
             foreach (var botTypeName in botTypeNames)
             {
-                var botTypeNameLower = botTypeName.ToLower();
+                var botTypeNameLower = botTypeName.ToLowerInvariant();
                 
                 ReplaceBotSettings(_databaseTables.Bots.Types[botTypeNameLower], botTypeData);
 

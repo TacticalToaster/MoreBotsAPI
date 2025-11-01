@@ -27,7 +27,7 @@ public class MoreBotsCustomBotConfigService(
     {
         if (_botConfig == null) _botConfig = configServer.GetConfig<BotConfig>();
 
-        var botTypeNameLower = botTypeName.ToLower();
+        var botTypeNameLower = botTypeName.ToLowerInvariant();
 
         if (botConfigData == null)
         {
@@ -91,7 +91,7 @@ public class MoreBotsCustomBotConfigService(
             {
                 var botConfigData = await jsonUtil.DeserializeFromFileAsync<BotTypeConfig>(file);
                 var botTypeName = System.IO.Path.GetFileNameWithoutExtension(file);
-                var botTypeNameLower = botTypeName.ToLower();
+                var botTypeNameLower = botTypeName.ToLowerInvariant();
 
                 if (ProcessBotConfig(botConfigData, botTypeName))
                 {
@@ -140,7 +140,7 @@ public class MoreBotsCustomBotConfigService(
 
             foreach (var botTypeName in botTypeNames)
             {
-                var botTypeNameLower = botTypeName.ToLower();
+                var botTypeNameLower = botTypeName.ToLowerInvariant();
 
                 if (ProcessBotConfig(botConfigData, botTypeName))
                 {
