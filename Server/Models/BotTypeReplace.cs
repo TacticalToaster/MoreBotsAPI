@@ -57,19 +57,19 @@ public record DifficultyCategoriesReplace
 
     public BotGlobalsGrenadeSettings? Grenade { get; set; }
 
-    public required BotGlobalsHearingSettings? Hearing { get; set; }
+    public BotGlobalsHearingSettings? Hearing { get; set; }
 
-    public required BotGlobalLayData? Lay { get; set; }
+    public BotGlobalLayData? Lay { get; set; }
 
-    public required BotGlobalLookData? Look { get; set; }
+    public BotGlobalLookData? Look { get; set; }
 
-    public required BotGlobalsMindSettings? Mind { get; set; }
+    public BotGlobalsMindSettings? Mind { get; set; }
 
-    public required BotGlobalsMoveSettings? Move { get; set; }
+    public BotGlobalsMoveSettings? Move { get; set; }
 
-    public required BotGlobalPatrolSettings? Patrol { get; set; }
+    public BotGlobalPatrolSettings? Patrol { get; set; }
 
-    public required BotGlobalsScatteringSettings? Scattering { get; set; }
+    public BotGlobalsScatteringSettings? Scattering { get; set; }
 
-    public required BotGlobalShootData? Shoot { get; set; }
+    public BotGlobalShootData? Shoot { get; set; }
 }
