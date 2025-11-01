@@ -56,7 +56,7 @@ public class FactionService
     {
         foreach (var type in types)
         {
-            if (databaseService.GetBots().Types.TryGetValue(type, out var botType))
+            if (databaseService.GetBots().Types.TryGetValue(type.ToLowerInvariant(), out var botType))
             {
                 AddEnemyByFaction(botType, factionName);
             }
@@ -64,6 +64,30 @@ public class FactionService
             {
                 logger.Warning($"Bot type '{type}' not found when setting enemies by faction '{factionName}'.");
             }
+        }
+    }
+
+    public void AddEnemyByFaction(string factionToChange, string factionName)
+    {
+        if (Factions.TryGetValue(factionToChange, out var faction))
+        {
+            var allyBotTypes = faction.GetAllBotTypes();
+            foreach (var type in allyBotTypes)
+            {
+                if (Enum.GetName<WildSpawnType>(type) == null)
+                {
+                    logger.Warning($"Bot type enum name not found for type '{type}' when setting enemies by faction '{factionName}'.");
+                    continue;
+                }
+                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type) ?? string.Empty, out var botType))
+                {
+                    AddEnemyByFaction(botType, factionName);
+                }
+            }
+        }
+        else
+        {
+            logger.Warning($"Faction '{factionToChange}' not found when setting enemies for faction.");
         }
     }
 
@@ -87,7 +111,7 @@ public class FactionService
     {
         foreach (var type in types)
         {
-            if (databaseService.GetBots().Types.TryGetValue(type, out var botType))
+            if (databaseService.GetBots().Types.TryGetValue(type.ToLowerInvariant(), out var botType))
             {
                 AddFriendlyByFaction(botType, factionName);
             }
@@ -95,6 +119,32 @@ public class FactionService
             {
                 logger.Warning($"Bot type '{type}' not found when setting friendlies by faction '{factionName}'.");
             }
+        }
+    }
+
+    public void AddFriendlyByFaction(string factionToChange, string factionName)
+    {
+        if (Factions.TryGetValue(factionToChange, out var faction))
+        {
+            var allyBotTypes = faction.GetAllBotTypes();
+
+            foreach (var type in allyBotTypes)
+            {
+                if (Enum.GetName<WildSpawnType>(type) == null)
+                {
+                    logger.Warning($"Bot type enum name not found for type '{type}' when setting friendlies by faction '{factionName}'.");
+                    continue;
+                }
+
+                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type) ?? string.Empty, out var botType))
+                {
+                    AddFriendlyByFaction(botType, factionName);
+                }
+            }
+        }
+        else
+        {
+            logger.Warning($"Faction '{factionToChange}' not found when setting friendlies for faction.");
         }
     }
 
@@ -118,7 +168,7 @@ public class FactionService
     {
         foreach (var type in types)
         {
-            if (databaseService.GetBots().Types.TryGetValue(type, out var botType))
+            if (databaseService.GetBots().Types.TryGetValue(type.ToLowerInvariant(), out var botType))
             {
                 AddWarnByFaction(botType, factionName);
             }
@@ -126,6 +176,32 @@ public class FactionService
             {
                 logger.Warning($"Bot type '{type}' not found when setting warns by faction '{factionName}'.");
             }
+        }
+    }
+
+    public void AddWarnByFaction(string factionToChange, string factionName)
+    {
+        if (Factions.TryGetValue(factionToChange, out var faction))
+        {
+            var allyBotTypes = faction.GetAllBotTypes();
+
+            foreach (var type in allyBotTypes)
+            {
+                if (Enum.GetName<WildSpawnType>(type) == null)
+                {
+                    logger.Warning($"Bot type enum name not found for type '{type}' when setting warns by faction '{factionName}'.");
+                    continue;
+                }
+
+                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type) ?? string.Empty, out var botType))
+                {
+                    AddWarnByFaction(botType, factionName);
+                }
+            }
+        }
+        else
+        {
+            logger.Warning($"Faction '{factionToChange}' not found when setting warns for faction.");
         }
     }
 
@@ -149,7 +225,7 @@ public class FactionService
     {
         foreach (var type in types)
         {
-            if (databaseService.GetBots().Types.TryGetValue(type, out var botType))
+            if (databaseService.GetBots().Types.TryGetValue(type.ToLowerInvariant(), out var botType))
             {
                 AddRevengeByFaction(botType, factionName);
             }
@@ -157,6 +233,31 @@ public class FactionService
             {
                 logger.Warning($"Bot type '{type}' not found when setting revenge by faction '{factionName}'.");
             }
+        }
+    }
+
+    public void AddRevengeByFaction(string factionToChange, string factionName)
+    {
+        if (Factions.TryGetValue(factionToChange, out var faction))
+        {
+            var allyBotTypes = faction.GetAllBotTypes();
+
+            foreach (var type in allyBotTypes)
+            {
+                if (Enum.GetName<WildSpawnType>(type) == null)
+                {
+                    logger.Warning($"Bot type enum name not found for type '{type}' when setting revenge by faction '{factionName}'.");
+                    continue;
+                }
+                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type) ?? string.Empty, out var botType))
+                {
+                    AddRevengeByFaction(botType, factionName);
+                }
+            }
+        }
+        else
+        {
+            logger.Warning($"Faction '{factionToChange}' not found when setting revenge for faction.");
         }
     }
 
