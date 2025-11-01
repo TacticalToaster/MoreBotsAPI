@@ -1,13 +1,10 @@
-
-
+using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Controllers;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Server;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
 using System.Reflection;
@@ -25,12 +22,17 @@ public class MoreBotsCustomBotTypeService(
     private DatabaseTables? _databaseTables;
     public List<string> LoadedBotTypes { get; } = new();
 
+    private void GetDatabaseTables()
+    {
+        if (_databaseTables == null) _databaseTables = databaseService.GetTables();
+    }
+
     // Create custom bot types using your mod db folders.
     // Do note that types get added to the database fully lowercase. SPT requires it like that to work.
     // If you want to edit the type after it is created, make sure you account for the lowercase name when indexing the table.
     public async Task CreateCustomBotTypes(Assembly assembly, string? relativePath = null)
     {
-        if (_databaseTables == null) _databaseTables = databaseService.GetTables();
+        GetDatabaseTables();
 
         try
         {
@@ -75,7 +77,7 @@ public class MoreBotsCustomBotTypeService(
 
     public async Task CreateCustomBotTypesShared(Assembly assembly, string sharedFileName, List<string> botTypeNames)
     {
-        if (_databaseTables == null) _databaseTables = databaseService.GetTables();
+        GetDatabaseTables();
 
         try
         {
@@ -122,9 +124,187 @@ public class MoreBotsCustomBotTypeService(
         }
     }
 
+    // Replace individual settings of existing bot types using your mod db folders.
+    // Difficulty settings will only replace the settings you provide, leaving others intact.
+    // Other settings are less granular, typically replacing the entire section or having one layer of granularity.
+    // This lets you modify existing bot types without needing to redefine the entire type, or create multiple similar types with minor changes.
+    public async Task LoadBotTypeReplace(Assembly assembly, string replaceFileName, List<string> botTypeNames)
+    {
+        GetDatabaseTables();
+
+        try
+        {
+            var assemblyLocation = modHelper.GetAbsolutePathToModFolder(assembly);
+            var botTypeDir = System.IO.Path.Combine("db", "bots", "sharedTypes");
+            var finalDir = System.IO.Path.Combine(assemblyLocation, botTypeDir);
+
+            logger.Info($"Starting type settings replacement using shared bot type file: {replaceFileName}");
+
+            if (!Directory.Exists(finalDir))
+            {
+                logger.Warning($"Directory for shared custom bot types not found at {finalDir}");
+                return;
+            }
+
+            var files = Directory.GetFiles(finalDir, replaceFileName + ".json*");
+
+            if (!files.Any())
+            {
+                logger.Warning($"Shared bot type file {replaceFileName} not found at {finalDir}");
+                return;
+            }
+
+            var file = files[0];
+
+            var botTypeData = await jsonUtil.DeserializeFromFileAsync<BotType>(file);
+
+            if (botTypeData == null)
+            {
+                logger.Warning($"Could not read {file} as bot type data! Skipping replacing bot types.");
+                return;
+            }
+
+            foreach (var botTypeName in botTypeNames)
+            {
+                var botTypeNameLower = botTypeName.ToLower();
+                
+                ReplaceBotSettings(_databaseTables.Bots.Types[botTypeNameLower], botTypeData);
+
+                logger.Info($"Successfully replaced settings in bot type: {botTypeNameLower}");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.Error($"Error replacing settings in bot types: {ex.Message}");
+        }
+    }
+
+    public void ReplaceBotSettings(BotType typeToReplace, BotType replacement)
+    {
+        if (replacement.BotAppearance != null) ReplaceBotAppearance(typeToReplace, replacement.BotAppearance);
+        if (replacement.BotChances != null) ReplaceBotChances(typeToReplace, replacement.BotChances);
+        if (replacement.BotDifficulty != null) ReplaceBotDifficulties(typeToReplace, replacement.BotDifficulty);
+        if (replacement.BotExperience != null) ReplaceBotExperience(typeToReplace, replacement.BotExperience);
+        if (replacement.FirstNames != null) ReplaceBotFirstNames(typeToReplace, replacement.FirstNames);
+        if (replacement.LastNames != null) ReplaceBotLastNames(typeToReplace, replacement.LastNames);
+        if (replacement.BotGeneration != null) ReplaceBotGeneration(typeToReplace, replacement.BotGeneration);
+        if (replacement.BotHealth != null) ReplaceBotHealth(typeToReplace, replacement.BotHealth);
+        if (replacement.BotInventory != null) ReplaceBotInventory(typeToReplace, replacement.BotInventory);
+        if (replacement.BotSkills != null) ReplaceBotSkills(typeToReplace, replacement.BotSkills);
+    }
+
+    public void ReplaceBotAppearance(BotType typeToReplace, Appearance replacement)
+    {
+        if (replacement.Body != null) typeToReplace.BotAppearance.Body = replacement.Body;
+        if (replacement.Feet != null) typeToReplace.BotAppearance.Feet = replacement.Feet;
+        if (replacement.Hands != null) typeToReplace.BotAppearance.Hands = replacement.Hands;
+        if (replacement.Head != null) typeToReplace.BotAppearance.Head = replacement.Head;
+        if (replacement.Voice != null) typeToReplace.BotAppearance.Voice = replacement.Voice;
+    }
+
+    public void ReplaceBotChances(BotType typeToReplace, Chances replacement)
+    {
+        if (replacement.EquipmentChances != null) typeToReplace.BotChances.EquipmentChances = replacement.EquipmentChances;
+        if (replacement.WeaponModsChances != null) typeToReplace.BotChances.WeaponModsChances = replacement.WeaponModsChances;
+        if (replacement.EquipmentModsChances != null) typeToReplace.BotChances.EquipmentModsChances = replacement.EquipmentModsChances;
+    }
+
+    public void ReplaceBotDifficulties(BotType typeToReplace, Dictionary<string, DifficultyCategories> replacement)
+    {
+        if (replacement.ContainsKey("all"))
+        {
+            foreach (var category in replacement["all"].GetAllPropertiesAsDictionary())
+            {
+                var replacementSettings = category.Value.GetAllPropertiesAsDictionary();
+                foreach (var setting in replacementSettings)
+                {
+                    if (setting.Value == null) continue;
+                    ReplaceBotDifficultySettings(typeToReplace, "easy", category.Key, setting.Key, setting.Value);
+                    ReplaceBotDifficultySettings(typeToReplace, "normal", category.Key, setting.Key, setting.Value);
+                    ReplaceBotDifficultySettings(typeToReplace, "hard", category.Key, setting.Key, setting.Value);
+                    ReplaceBotDifficultySettings(typeToReplace, "impossible", category.Key, setting.Key, setting.Value);
+                }
+            }
+        }
+
+        if (replacement.ContainsKey("easy"))
+            ReplaceBotDifficultyCategory(typeToReplace, "easy", replacement);
+
+        if (replacement.ContainsKey("normal"))
+            ReplaceBotDifficultyCategory(typeToReplace, "normal", replacement);
+
+        if (replacement.ContainsKey("hard"))
+            ReplaceBotDifficultyCategory(typeToReplace, "hard", replacement);
+
+        if (replacement.ContainsKey("impossible"))
+            ReplaceBotDifficultyCategory(typeToReplace, "impossible", replacement);
+    }
+
+    private void ReplaceBotDifficultyCategory(BotType typeToReplace, string difficulty, Dictionary<string, DifficultyCategories> replacement)
+    {
+        foreach (var category in replacement[difficulty].GetAllPropertiesAsDictionary())
+        {
+            var replacementSettings = category.Value.GetAllPropertiesAsDictionary();
+            foreach (var setting in replacementSettings)
+            {
+                if (setting.Value == null) continue;
+                ReplaceBotDifficultySettings(typeToReplace, difficulty, category.Key, setting.Key, setting.Value);
+            }
+        }
+    }
+
+    private void ReplaceBotDifficultySettings(BotType typeToReplace, string difficulty, string category, string setting, object replaceValue)
+    {
+        var categoryObject = typeToReplace.BotDifficulty[difficulty].GetType().GetProperty(category)?.GetValue(typeToReplace.BotDifficulty[difficulty]);
+        categoryObject?.GetType().GetProperty(setting)?.SetValue(categoryObject, replaceValue);
+    }
+
+    public void ReplaceBotExperience(BotType typeToReplace, Experience replacement)
+    {
+        if (replacement.AggressorBonus != null) typeToReplace.BotExperience.AggressorBonus = replacement.AggressorBonus;
+        if (replacement.Level != null) typeToReplace.BotExperience.Level = replacement.Level;
+        if (replacement.Reward != null) typeToReplace.BotExperience.Reward = replacement.Reward;
+        if (replacement.StandingForKill != null) typeToReplace.BotExperience.StandingForKill = replacement.StandingForKill;
+        if (replacement.UseSimpleAnimator != null) typeToReplace.BotExperience.UseSimpleAnimator = replacement.UseSimpleAnimator;
+    }
+
+    public void ReplaceBotFirstNames(BotType typeToReplace, List<string> replacement)
+    {
+        if (replacement != null) typeToReplace.FirstNames = replacement;
+    }
+
+    public void ReplaceBotLastNames(BotType typeToReplace, IEnumerable<string> replacement)
+    {
+        if (replacement != null) typeToReplace.LastNames = replacement;
+    }
+
+    public void ReplaceBotGeneration(BotType typeToReplace, Generation replacement)
+    {
+        if (replacement != null) typeToReplace.BotGeneration = replacement;
+    }
+
+    public void ReplaceBotHealth(BotType typeToReplace, BotTypeHealth replacement)
+    {
+        if (replacement != null) typeToReplace.BotHealth = replacement;
+    }
+
+    public void ReplaceBotInventory(BotType typeToReplace, BotTypeInventory replacement)
+    {
+        if (replacement.Equipment != null) typeToReplace.BotInventory.Equipment = replacement.Equipment;
+        if (replacement.Ammo != null) typeToReplace.BotInventory.Ammo = replacement.Ammo;
+        if (replacement.Items != null) typeToReplace.BotInventory.Items = replacement.Items;
+        if (replacement.Mods != null) typeToReplace.BotInventory.Mods = replacement.Mods;
+    }
+
+    public void ReplaceBotSkills(BotType typeToReplace, BotDbSkills replacement)
+    {
+        if (replacement.Common != null) typeToReplace.BotSkills.Common = replacement.Common;
+        if (replacement.Mastering != null) typeToReplace.BotSkills.Mastering = replacement.Mastering;
+    }
+
     public Dictionary<string, Dictionary<string, DifficultyCategories>>? GetBotDifficulties(string url, EmptyRequestData info, string sessionID, string output)
     {
-        if (_databaseTables == null) _databaseTables = databaseService.GetTables();
+        GetDatabaseTables();
 
         try
         {
