@@ -11,7 +11,8 @@ namespace MoreBotsServer.Services;
 [Injectable(InjectionType.Singleton)]
 public class FactionService(
     ISptLogger<MoreBotsCustomBotTypeService> logger,
-    MoreBotsCustomBotTypeService customBotTypeService
+    MoreBotsCustomBotTypeService customBotTypeService,
+    DatabaseService databaseService
 )
 {
     public Dictionary<string, Faction> Factions { get; } = new();
@@ -42,6 +43,21 @@ public class FactionService(
         }
     }
 
+    public void AddEnemyByFaction(IEnumerable<string> types, string factionName)
+    {
+        foreach (var type in types)
+        {
+            if (databaseService.GetBots().Types.TryGetValue(type, out var botType))
+            {
+                AddEnemyByFaction(botType, factionName);
+            }
+            else
+            {
+                logger.Warning($"Bot type '{type}' not found when setting enemies by faction '{factionName}'.");
+            }
+        }
+    }
+
     public void AddFriendlyByFaction(BotType botType, string factionName)
     {
         if (Factions.TryGetValue(factionName, out var faction))
@@ -54,7 +70,22 @@ public class FactionService(
         }
         else
         {
-            logger.Warning($"Faction '{factionName}' not found when setting allies for bot type '{botType}'.");
+            logger.Warning($"Faction '{factionName}' not found when setting friendlies for bot type '{botType}'.");
+        }
+    }
+
+    public void AddFriendlyByFaction(IEnumerable<string> types, string factionName)
+    {
+        foreach (var type in types)
+        {
+            if (databaseService.GetBots().Types.TryGetValue(type, out var botType))
+            {
+                AddFriendlyByFaction(botType, factionName);
+            }
+            else
+            {
+                logger.Warning($"Bot type '{type}' not found when setting friendlies by faction '{factionName}'.");
+            }
         }
     }
 
@@ -74,6 +105,21 @@ public class FactionService(
         }
     }
 
+    public void AddWarnByFaction(IEnumerable<string> types, string factionName)
+    {
+        foreach (var type in types)
+        {
+            if (databaseService.GetBots().Types.TryGetValue(type, out var botType))
+            {
+                AddWarnByFaction(botType, factionName);
+            }
+            else
+            {
+                logger.Warning($"Bot type '{type}' not found when setting warns by faction '{factionName}'.");
+            }
+        }
+    }
+
     public void AddRevengeByFaction(BotType botType, string factionName)
     {
         if (Factions.TryGetValue(factionName, out var faction))
@@ -87,6 +133,21 @@ public class FactionService(
         else
         {
             logger.Warning($"Faction '{factionName}' not found when setting revenge for bot type '{botType}'.");
+        }
+    }
+
+    public void AddRevengeByFaction(IEnumerable<string> types, string factionName)
+    {
+        foreach (var type in types)
+        {
+            if (databaseService.GetBots().Types.TryGetValue(type, out var botType))
+            {
+                AddRevengeByFaction(botType, factionName);
+            }
+            else
+            {
+                logger.Warning($"Bot type '{type}' not found when setting revenge by faction '{factionName}'.");
+            }
         }
     }
 
