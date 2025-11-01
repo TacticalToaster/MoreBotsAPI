@@ -9,12 +9,21 @@ using SPTarkov.Server.Core.Utils;
 namespace MoreBotsServer.Services;
 
 [Injectable(InjectionType.Singleton)]
-public class FactionService(
-    ISptLogger<MoreBotsCustomBotTypeService> logger,
-    MoreBotsCustomBotTypeService customBotTypeService,
-    DatabaseService databaseService
-)
+public class FactionService
 {
+    private readonly ISptLogger<MoreBotsCustomBotTypeService> logger;
+    private readonly DatabaseService databaseService;
+
+    public FactionService(
+        ISptLogger<MoreBotsCustomBotTypeService> logger,
+        DatabaseService databaseService
+    )
+    {
+        this.logger = logger;
+        this.databaseService = databaseService;
+        InitFactions();
+    }
+
     public Dictionary<string, Faction> Factions { get; } = new();
 
     public void InitFactions()
