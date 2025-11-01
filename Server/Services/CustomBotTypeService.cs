@@ -1,3 +1,4 @@
+using MoreBotsServer.Models;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
@@ -156,7 +157,7 @@ public class MoreBotsCustomBotTypeService(
 
             var file = files[0];
 
-            var botTypeData = await jsonUtil.DeserializeFromFileAsync<BotType>(file);
+            var botTypeData = await jsonUtil.DeserializeFromFileAsync<BotTypeReplace>(file);
 
             if (botTypeData == null)
             {
@@ -179,7 +180,7 @@ public class MoreBotsCustomBotTypeService(
         }
     }
 
-    public void ReplaceBotSettings(BotType typeToReplace, BotType replacement)
+    public void ReplaceBotSettings(BotType typeToReplace, BotTypeReplace replacement)
     {
         if (replacement.BotAppearance != null) ReplaceBotAppearance(typeToReplace, replacement.BotAppearance);
         if (replacement.BotChances != null) ReplaceBotChances(typeToReplace, replacement.BotChances);
@@ -209,7 +210,7 @@ public class MoreBotsCustomBotTypeService(
         if (replacement.EquipmentModsChances != null) typeToReplace.BotChances.EquipmentModsChances = replacement.EquipmentModsChances;
     }
 
-    public void ReplaceBotDifficulties(BotType typeToReplace, Dictionary<string, DifficultyCategories> replacement)
+    public void ReplaceBotDifficulties(BotType typeToReplace, Dictionary<string, DifficultyCategoriesReplace> replacement)
     {
         if (replacement.ContainsKey("all"))
         {
@@ -240,7 +241,7 @@ public class MoreBotsCustomBotTypeService(
             ReplaceBotDifficultyCategory(typeToReplace, "impossible", replacement);
     }
 
-    private void ReplaceBotDifficultyCategory(BotType typeToReplace, string difficulty, Dictionary<string, DifficultyCategories> replacement)
+    private void ReplaceBotDifficultyCategory(BotType typeToReplace, string difficulty, Dictionary<string, DifficultyCategoriesReplace> replacement)
     {
         foreach (var category in replacement[difficulty].GetAllPropertiesAsDictionary())
         {
