@@ -17,7 +17,8 @@ namespace MoreBotsAPI.Patches
         [HarmonyPriority(Priority.First)] // Make sure this runs after BigBrain so we can override it
         public static void PatchPostfix(StandartBotBrain __instance, BotOwner ___BotOwner_0)
         {
-            if (___BotOwner_0.Profile.Info.Settings.Role.IsCustomType())
+            if (CustomWildSpawnTypeManager.IsCustomWildSpawnType((int)___BotOwner_0.Profile.Info.Settings.Role))
+            //if (___BotOwner_0.Profile.Info.Settings.Role.IsCustomType())
             {
                 var customType = ___BotOwner_0.Profile.Info.Settings.Role.GetCustomType();
                 Logger.LogMessage("Changing brain for custom bot.");

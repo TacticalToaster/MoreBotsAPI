@@ -62,6 +62,11 @@ namespace MoreBotsAPI
             return _customWildSpawnTypeDict;
         }
 
+        public static bool IsCustomWildSpawnType(int type)
+        {
+            return _customWildSpawnTypeDict.ContainsKey(type);
+        }
+
         public static List<List<int>> GetSuitableGroupsList()
         {
             return _suitableGroupsList;
