@@ -183,6 +183,60 @@ public class MoreBotsCustomBotTypeService(
         }
     }
 
+    public async Task LoadBotTypeReplaceByTypes(Assembly assembly, List<string> botTypeNames)
+    {
+        GetDatabaseTables();
+
+        try
+        {
+            var assemblyLocation = modHelper.GetAbsolutePathToModFolder(assembly);
+            var botTypeDir = System.IO.Path.Combine("db", "bots", "sharedTypes");
+            var finalDir = System.IO.Path.Combine(assemblyLocation, botTypeDir);
+
+            logger.Info($"Starting type settings replacement using shared bot type files");
+
+            if (!Directory.Exists(finalDir))
+            {
+                logger.Warning($"Directory for shared custom bot types not found at {finalDir}");
+                return;
+            }
+
+
+            foreach (var botTypeName in botTypeNames)
+            {
+                var files = Directory.GetFiles(finalDir, botTypeName + ".json*");
+
+                if (!files.Any())
+                {
+                    logger.Warning($"Shared bot type file {botTypeName} not found at {finalDir}");
+                    continue;
+                }
+
+                var file = files[0];
+
+                var botTypeData = await jsonUtil.DeserializeFromFileAsync<BotTypeReplace>(file);
+
+                if (botTypeData == null)
+                {
+                    logger.Warning($"Could not read {file} as bot type data! Skipping replacing bot type {botTypeName}.");
+                    continue;
+                }
+
+                var botTypeNameLower = botTypeName.ToLowerInvariant();
+
+                botTypeData = await jsonUtil.DeserializeFromFileAsync<BotTypeReplace>(file);
+
+                ReplaceBotSettings(_databaseTables.Bots.Types[botTypeNameLower], botTypeData);
+
+                logger.Info($"Successfully replaced settings in bot type: {botTypeNameLower}");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.Error($"Error replacing settings in bot types: {ex.Message}");
+        }
+    }
+
     public void ReplaceBotSettings(BotType typeToReplace, BotTypeReplace replacement)
     {
         if (replacement.BotAppearance != null) ReplaceBotAppearance(typeToReplace, replacement.BotAppearance);
