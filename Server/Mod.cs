@@ -24,7 +24,7 @@ public record ModMetadata : AbstractModMetadata
     public override string License { get; init; } = "MIT";
 }
 
-[Injectable(InjectionType = InjectionType.Singleton, TypePriority = OnLoadOrder.PostDBModLoader + 1)]
+[Injectable(InjectionType = InjectionType.Singleton, TypePriority = OnLoadOrder.PostDBModLoader + 5)]
 public class MoreBotsAPI(
     MoreBotsCustomBotTypeService customBotTypeService,
     MoreBotsCustomBotConfigService customBotConfigService
