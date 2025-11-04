@@ -95,7 +95,7 @@ public class MoreBotsCustomBotConfigService(
 
                 if (ProcessBotConfig(botConfigData, botTypeName))
                 {
-                    logger.Info($"Loaded custom bot config for: {botTypeNameLower}");
+                    //logger.Info($"Loaded custom bot config for: {botTypeNameLower}");
                 }
                 else
                 {
@@ -146,7 +146,7 @@ public class MoreBotsCustomBotConfigService(
 
                 if (ProcessBotConfig(botConfigData, botTypeName))
                 {
-                    logger.Info($"Loaded custom shared bot config for: {botTypeNameLower}");
+                    //logger.Info($"Loaded custom shared bot config for: {botTypeNameLower}");
                 }
                 else
                 {

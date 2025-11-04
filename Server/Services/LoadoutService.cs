@@ -43,7 +43,7 @@ public class LoadoutService(
 
                 botTypeName = botTypeName.ToLowerInvariant();
 
-                logger.Info($"Loading loadout for custom bot type: {botTypeName}");
+                //logger.Info($"Loading loadout for custom bot type: {botTypeName}");
 
                 if (loadout == null)
                 {
@@ -53,7 +53,7 @@ public class LoadoutService(
 
                 ProcessLoadouts(assembly, botTypeName, databaseService.GetTables().Bots.Types[botTypeName], UseTemplateLoadout(assembly, template, loadout));
 
-                logger.Info($"Successfully loaded custom loadout data for bot type: {botTypeName}");
+                //logger.Info($"Successfully loaded custom loadout data for bot type: {botTypeName}");
             }
         }
         catch (Exception ex)
@@ -250,7 +250,7 @@ public class LoadoutService(
         }
 
         var files = Directory.GetFiles(commonDir, "*.json*");
-        logger.Info($"Found {files.Length} common loadout file(s) to merge");
+        //logger.Info($"Found {files.Length} common loadout file(s) to merge");
 
         foreach (var file in files)
         {
@@ -259,10 +259,10 @@ public class LoadoutService(
                 var fileContent = File.ReadAllText(file);
                 var loadoutData = jsonUtil.Deserialize<LoadoutInfo>(fileContent);
 
-                logger.Info($"Preparing merge of: {System.IO.Path.GetFileName(file)}");
+                //logger.Info($"Preparing merge of: {System.IO.Path.GetFileName(file)}");
 
                 combinedLoadout = DeepMerge(combinedLoadout, loadoutData);
-                logger.Info($"Merged common loadout file: {System.IO.Path.GetFileName(file)}");
+                //logger.Info($"Merged common loadout file: {System.IO.Path.GetFileName(file)}");
             }
             catch (Exception ex)
             {

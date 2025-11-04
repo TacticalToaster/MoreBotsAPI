@@ -56,7 +56,7 @@ public class MoreBotsCustomBotTypeService(
 
                 botTypeName = botTypeName.ToLowerInvariant();
 
-                logger.Info($"Loading custom bot type: {botTypeName}");
+                //logger.Info($"Loading custom bot type: {botTypeName}");
 
                 if (botTypeData == null)
                 {
@@ -67,7 +67,7 @@ public class MoreBotsCustomBotTypeService(
                 _databaseTables.Bots.Types[botTypeName] = botTypeData;
                 LoadedBotTypes.Add(botTypeName);
 
-                logger.Info($"Successfully loaded custom bot type: {botTypeName}");
+                //logger.Info($"Successfully loaded custom bot type: {botTypeName}");
             }
         }
         catch (Exception ex)
@@ -117,7 +117,7 @@ public class MoreBotsCustomBotTypeService(
                 _databaseTables.Bots.Types[botTypeNameLower] = botTypeData;
                 LoadedBotTypes.Add(botTypeNameLower);
 
-                logger.Info($"Successfully loaded shared custom bot type: {botTypeNameLower}");
+                //logger.Info($"Successfully loaded shared custom bot type: {botTypeNameLower}");
             }
         }
         catch (Exception ex)
@@ -140,7 +140,7 @@ public class MoreBotsCustomBotTypeService(
             var botTypeDir = System.IO.Path.Combine("db", "bots", "sharedTypes");
             var finalDir = System.IO.Path.Combine(assemblyLocation, botTypeDir);
 
-            logger.Info($"Starting type settings replacement using shared bot type file: {replaceFileName}");
+            //logger.Info($"Starting type settings replacement using shared bot type file: {replaceFileName}");
 
             if (!Directory.Exists(finalDir))
             {
@@ -174,7 +174,7 @@ public class MoreBotsCustomBotTypeService(
 
                 ReplaceBotSettings(_databaseTables.Bots.Types[botTypeNameLower], botTypeData);
 
-                logger.Info($"Successfully replaced settings in bot type: {botTypeNameLower}");
+                //logger.Info($"Successfully replaced settings in bot type: {botTypeNameLower}");
             }
         }
         catch (Exception ex)
@@ -193,7 +193,7 @@ public class MoreBotsCustomBotTypeService(
             var botTypeDir = System.IO.Path.Combine("db", "bots", "sharedTypes");
             var finalDir = System.IO.Path.Combine(assemblyLocation, botTypeDir);
 
-            logger.Info($"Starting type settings replacement using shared bot type files");
+            //logger.Info($"Starting type settings replacement using shared bot type files");
 
             if (!Directory.Exists(finalDir))
             {
@@ -228,7 +228,7 @@ public class MoreBotsCustomBotTypeService(
 
                 ReplaceBotSettings(_databaseTables.Bots.Types[botTypeNameLower], botTypeData);
 
-                logger.Info($"Successfully replaced settings in bot type: {botTypeNameLower}");
+                //logger.Info($"Successfully replaced settings in bot type: {botTypeNameLower}");
             }
         }
         catch (Exception ex)
@@ -383,7 +383,7 @@ public class MoreBotsCustomBotTypeService(
 
             foreach (var botType in LoadedBotTypes)
             {
-                logger.Info($"Processing bot type: {botType}");
+                //logger.Info($"Processing bot type: {botType}");
 
                 var botData = botDifficulties.ContainsKey(botType) ? botDifficulties[botType] : null;
 
