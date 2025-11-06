@@ -3,6 +3,7 @@ A client and server API that makes making custom bots a little less infuriating.
 
 ### Table of Contents
 
+ - [DISCLAIMER](#disclaimer)
  - [Features](#features)
  - [What's not included](#notincluded)
  - [Installation](#installation)
@@ -13,6 +14,9 @@ A client and server API that makes making custom bots a little less infuriating.
 	 - [Enum Practice](#enumpractice)
 	 - [Used Enums](#usedenum)
 
+<a id="disclaimer"></a>
+## DISCLAIMER
+This repo uses the CC BY-NC-ND 4.0 License. To implement this API in your own mod, please contact me first for permission. This API does a lot and has the potential to break other mods and people's games when used incorrectly. In addition, overriding another mod's WildSpawnType enum values or vanilla values will cause MANY problems and create a headache for everyone involved, trying to find out what exactly is going wrong for users. In addition, this will make it easier for me to track what WildSpawnType enums are being used so there's no future conflicts.
 <a id="features"></a>
 ## Features
 Adds to WildSpawnType enum on client
