@@ -5,6 +5,7 @@ using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Server;
+using SPTarkov.Server.Core.Models.Spt.Templates;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
@@ -59,6 +60,47 @@ public class LoadoutService(
         catch (Exception ex)
         {
             logger.Error($"Error loading custom loadouts with template: {ex.Message}");
+        }
+    }
+
+    public async Task LoadLoadouts(Assembly assembly)
+    {
+        try
+        {
+            var pathToMod = modHelper.GetAbsolutePathToModFolder(assembly);
+            var loadoutDir = System.IO.Path.Combine(pathToMod, "db", "bots", "loadouts");
+
+            if (!Directory.Exists(loadoutDir))
+            {
+                logger.Error($"Directory for custom loadouts not found at {loadoutDir}");
+                return;
+            }
+
+            var files = Directory.GetFiles(loadoutDir, "*.json*");
+
+            foreach (var file in files)
+            {
+                var loadout = await jsonUtil.DeserializeFromFileAsync<LoadoutInfo>(file);
+                var botTypeName = System.IO.Path.GetFileNameWithoutExtension(file);
+
+                botTypeName = botTypeName.ToLowerInvariant();
+
+                //logger.Info($"Loading loadout for custom bot type: {botTypeName}");
+
+                if (loadout == null)
+                {
+                    logger.Warning($"Could not read {file} as bot loadout data! Skipping.");
+                    continue;
+                }
+
+                ProcessLoadouts(assembly, botTypeName, databaseService.GetTables().Bots.Types[botTypeName], loadout);
+
+                //logger.Info($"Successfully loaded custom loadout data for bot type: {botTypeName}");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.Error($"Error loading custom loadouts: {ex.Message}");
         }
     }
 
