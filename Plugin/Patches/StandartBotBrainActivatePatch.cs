@@ -14,19 +14,37 @@ namespace MoreBotsAPI.Patches
         }
 
         [PatchPostfix]
-        [HarmonyPriority(Priority.First)] // Make sure this runs after BigBrain so we can override it
-        public static void PatchPostfix(StandartBotBrain __instance, BotOwner ___BotOwner_0)
+        [HarmonyPriority(Priority.First)] // Make sure this runs before BigBrain so we can override it
+        public static void PatchPrefix(StandartBotBrain __instance, BotOwner ___BotOwner_0)
         {
-            if (CustomWildSpawnTypeManager.IsCustomWildSpawnType((int)___BotOwner_0.Profile.Info.Settings.Role))
-            //if (___BotOwner_0.Profile.Info.Settings.Role.IsCustomType())
+            try
             {
-                var customType = ___BotOwner_0.Profile.Info.Settings.Role.GetCustomType();
-                Logger.LogMessage("Changing brain for custom bot.");
-                __instance.BaseBrain = GetBaseBrain(___BotOwner_0, customType.BaseBrain);
-                __instance.Agent = GetAgent(___BotOwner_0, __instance.BaseBrain, __instance);
+                if (CustomWildSpawnTypeManager.IsCustomWildSpawnType((int)___BotOwner_0.Profile.Info.Settings.Role))
+                {
+                    __instance.BaseBrain?.Dispose();
+                    __instance.Agent?.Dispose();
 
-                // This isn't critical, only knight, sanitar, and the attack event (khorvod generators, spring event, etc) behaviors use this
-                //__instance.OnSetStrategy?.Invoke(__instance.BaseBrain);
+                    var customType = ___BotOwner_0.Profile.Info.Settings.Role.GetCustomType();
+                    Logger.LogMessage($"Changing brain for custom bot {___BotOwner_0.Profile.Info.Settings.Role}.");
+                    __instance.BaseBrain = GetBaseBrain(___BotOwner_0, customType.BaseBrain);
+                    __instance.Agent = GetAgent(___BotOwner_0, __instance.BaseBrain, __instance);
+
+                    var eventDelegate = (MulticastDelegate)
+                        typeof(StandartBotBrain).GetField(nameof(StandartBotBrain.OnSetStrategy), BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
+
+                    if (eventDelegate != null)
+                    {
+                        foreach (var handler in eventDelegate.GetInvocationList())
+                        {
+                            handler.Method.Invoke(handler.Target, [__instance.BaseBrain]);
+                        }
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"Custom bot API ran into an error when checking/assigning brain to custom bot type: {e.Message}");
             }
         }
 
