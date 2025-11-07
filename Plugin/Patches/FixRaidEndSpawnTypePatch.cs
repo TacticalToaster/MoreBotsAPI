@@ -15,7 +15,7 @@ namespace MoreBotsAPI.Patches
         protected static void PatchPostfix(LocationStatisticsCollectorAbstractClass __instance)
         {
             var role = __instance.Profile_0.EftStats.DeathCause.Role;
-            if (role.IsCustomType())
+            if (CustomWildSpawnTypeManager.IsCustomWildSpawnType((int)role))
                 __instance.Profile_0.EftStats.DeathCause.Role = WildSpawnType.assault;
         }
     }
