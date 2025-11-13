@@ -15,7 +15,7 @@ namespace MoreBotsServer.Services;
 
 [Injectable(InjectionType.Singleton)]
 public class LoadoutService(
-    ISptLogger<LoadoutService> logger,
+    MoreBotsLogger logger,
     ModHelper modHelper,
     JsonUtil jsonUtil,
     DatabaseService databaseService,

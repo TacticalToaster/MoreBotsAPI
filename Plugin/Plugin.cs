@@ -1,13 +1,17 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using EFT;
 using HarmonyLib;
+using MoreBotsAPI.Components;
 using MoreBotsAPI.Patches;
 using Newtonsoft.Json;
+using SPT.Reflection.Patching;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using UnityEngine;
 
 namespace MoreBotsAPI
 {
@@ -17,6 +21,10 @@ namespace MoreBotsAPI
     public class Plugin : BaseUnityPlugin
     {
         public static ManualLogSource LogSource;
+
+        public static ConfigEntry<bool> DrawBotZones;
+
+        public static List<BotZone> BotZones;
 
         public static string pluginPath = Path.Combine(Environment.CurrentDirectory, "BepInEx", "plugins", "MoreBotsAPI");
 
@@ -60,10 +68,48 @@ namespace MoreBotsAPI
             new StandartBotBrainActivatePatch().Enable();
             new SuitableFollowersListPatch().Enable();
             new FenceLoyaltyWarnPatch().Enable();
+            new NewGamePatch().Enable();
+
+            InitConfig();
 
             int oldWildSpawnTypeConverter = Array.FindIndex<JsonConverter>(JsonSerializerSettingsClass.Converters, c => c.GetType() == typeof(GClass1866<WildSpawnType>));
             LogSource.LogInfo($"Old WildSpawnTypeFromInt converter index: {oldWildSpawnTypeConverter} {JsonSerializerSettingsClass.Converters[oldWildSpawnTypeConverter]}");
             JsonSerializerSettingsClass.Converters[oldWildSpawnTypeConverter] = new WildSpawnTypeFromIntConverter<WildSpawnType>(true);
+        }
+
+        private void InitConfig()
+        {
+            DrawBotZones = Config.Bind(
+                "Bot Zones",
+                "Draw Bot Zones",
+                false,
+                "Draw Bot Zones"
+                );
+
+            DrawBotZones.SettingChanged += OnDrawBotZones;
+        }
+
+        private void OnDrawBotZones(object sender, EventArgs e)
+        {
+            if (DrawBotZones.Value)
+            {
+                ZoneDebugComponent.Enable();
+            }
+            else
+            {
+                ZoneDebugComponent.Disable();
+            }
+        }
+    }
+
+    internal class NewGamePatch : ModulePatch
+    {
+        protected override MethodBase GetTargetMethod() => typeof(GameWorld).GetMethod(nameof(GameWorld.OnGameStarted));
+
+        [PatchPrefix]
+        public static void PatchPrefix()
+        {
+            ZoneDebugComponent.Enable();
         }
     }
 }

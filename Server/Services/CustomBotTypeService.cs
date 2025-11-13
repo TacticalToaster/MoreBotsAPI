@@ -14,7 +14,7 @@ namespace MoreBotsServer.Services;
 
 [Injectable(InjectionType.Singleton)]
 public class MoreBotsCustomBotTypeService(
-    ISptLogger<MoreBotsCustomBotTypeService> logger,
+    MoreBotsLogger logger,
     ModHelper modHelper,
     JsonUtil jsonUtil,
     DatabaseService databaseService
@@ -22,6 +22,7 @@ public class MoreBotsCustomBotTypeService(
 {
     private DatabaseTables? _databaseTables;
     public List<string> LoadedBotTypes { get; } = new();
+    public Dictionary<int, string> CustomWildSpawnTypes { get; } = new();
 
     private void GetDatabaseTables()
     {
@@ -54,7 +55,7 @@ public class MoreBotsCustomBotTypeService(
                 var botTypeData = await jsonUtil.DeserializeFromFileAsync<BotType>(file);
                 var botTypeName = System.IO.Path.GetFileNameWithoutExtension(file);
 
-                botTypeName = botTypeName.ToLowerInvariant();
+                var lowerBotTypeName = botTypeName.ToLowerInvariant();
 
                 //logger.Info($"Loading custom bot type: {botTypeName}");
 
@@ -64,8 +65,8 @@ public class MoreBotsCustomBotTypeService(
                     continue;
                 }
 
-                _databaseTables.Bots.Types[botTypeName] = botTypeData;
-                LoadedBotTypes.Add(botTypeName);
+                _databaseTables.Bots.Types[lowerBotTypeName] = botTypeData;
+                LoadedBotTypes.Add(lowerBotTypeName);
 
                 //logger.Info($"Successfully loaded custom bot type: {botTypeName}");
             }
@@ -126,6 +127,29 @@ public class MoreBotsCustomBotTypeService(
         }
     }
 
+    public void AddCustomWildSpawnTypeNames(Dictionary<int, string> valueNameDictionary)
+    {
+        foreach (var key in valueNameDictionary.Keys)
+        {
+            CustomWildSpawnTypes.TryAdd(key, valueNameDictionary[key]);
+        }
+    }
+
+    public string? TryGetCustomTypeName(int value)
+    {
+        CustomWildSpawnTypes.TryGetValue(value, out var typeName);
+
+        return typeName;
+    }
+
+    public string GetCustomTypeNameOrEmpty(int value)
+    {
+        var name = TryGetCustomTypeName(value);
+
+        if (name == null) return string.Empty;
+        return name;
+    }
+
     // Replace individual settings of existing bot types using your mod db folders.
     // Difficulty settings will only replace the settings you provide, leaving others intact.
     // Other settings are less granular, typically replacing the entire section or having one layer of granularity.
@@ -152,7 +176,7 @@ public class MoreBotsCustomBotTypeService(
 
             if (!files.Any())
             {
-                logger.Warning($"Shared bot type file {replaceFileName} not found at {finalDir}");
+                logger.Warning($"Shared replace bot type file {replaceFileName} not found at {finalDir}");
                 return;
             }
 

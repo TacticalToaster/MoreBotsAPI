@@ -11,16 +11,19 @@ namespace MoreBotsServer.Services;
 [Injectable(InjectionType.Singleton)]
 public class FactionService
 {
-    private readonly ISptLogger<MoreBotsCustomBotTypeService> logger;
+    private readonly MoreBotsLogger logger;
     private readonly DatabaseService databaseService;
+    private readonly MoreBotsCustomBotTypeService customBotTypeService;
 
     public FactionService(
-        ISptLogger<MoreBotsCustomBotTypeService> logger,
-        DatabaseService databaseService
+        MoreBotsLogger logger,
+        DatabaseService databaseService,
+        MoreBotsCustomBotTypeService botTypeService
     )
     {
         this.logger = logger;
         this.databaseService = databaseService;
+        this.customBotTypeService = botTypeService;
         InitFactions();
     }
 
@@ -41,10 +44,12 @@ public class FactionService
         if (Factions.TryGetValue(factionName, out var faction))
         {
             var enemyBotTypes = faction.GetAllBotTypes();
+            logger.Info($"Adding enemy faction {factionName} {enemyBotTypes.Count}");
             botType?.BotDifficulty["easy"]?.Mind?.EnemyBotTypes?.AddRange(enemyBotTypes);
             botType?.BotDifficulty["normal"]?.Mind?.EnemyBotTypes?.AddRange(enemyBotTypes);
             botType?.BotDifficulty["hard"]?.Mind?.EnemyBotTypes?.AddRange(enemyBotTypes);
             botType?.BotDifficulty["impossible"]?.Mind?.EnemyBotTypes?.AddRange(enemyBotTypes);
+            logger.Info($"{botType?.BotDifficulty["normal"]?.Mind?.EnemyBotTypes?.Count} {botType?.BotDifficulty["normal"]?.Mind?.EnemyBotTypes}");
         }
         else
         {
@@ -58,6 +63,7 @@ public class FactionService
         {
             if (databaseService.GetBots().Types.TryGetValue(type.ToLowerInvariant(), out var botType))
             {
+                logger.Info($"Adding enemy faction {factionName} to {type}");
                 AddEnemyByFaction(botType, factionName);
             }
             else
@@ -74,13 +80,14 @@ public class FactionService
             var allyBotTypes = faction.GetAllBotTypes();
             foreach (var type in allyBotTypes)
             {
-                if (Enum.GetName<WildSpawnType>(type) == null)
+                if (Enum.GetName<WildSpawnType>(type) == null && customBotTypeService.TryGetCustomTypeName((int)type) == null)
                 {
                     logger.Warning($"Bot type enum name not found for type '{type}' when setting enemies by faction '{factionName}'.");
                     continue;
                 }
-                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type) ?? string.Empty, out var botType))
+                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
                 {
+                    logger.Info($"Adding enemy faction {factionName} to {type}");
                     AddEnemyByFaction(botType, factionName);
                 }
             }
@@ -130,13 +137,13 @@ public class FactionService
 
             foreach (var type in allyBotTypes)
             {
-                if (Enum.GetName<WildSpawnType>(type) == null)
+                if (Enum.GetName<WildSpawnType>(type) == null && customBotTypeService.TryGetCustomTypeName((int)type) == null)
                 {
                     logger.Warning($"Bot type enum name not found for type '{type}' when setting friendlies by faction '{factionName}'.");
                     continue;
                 }
 
-                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type) ?? string.Empty, out var botType))
+                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
                 {
                     AddFriendlyByFaction(botType, factionName);
                 }
@@ -187,13 +194,13 @@ public class FactionService
 
             foreach (var type in allyBotTypes)
             {
-                if (Enum.GetName<WildSpawnType>(type) == null)
+                if (Enum.GetName<WildSpawnType>(type) == null && customBotTypeService.TryGetCustomTypeName((int)type) == null)
                 {
                     logger.Warning($"Bot type enum name not found for type '{type}' when setting warns by faction '{factionName}'.");
                     continue;
                 }
 
-                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type) ?? string.Empty, out var botType))
+                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
                 {
                     AddWarnByFaction(botType, factionName);
                 }
@@ -244,12 +251,12 @@ public class FactionService
 
             foreach (var type in allyBotTypes)
             {
-                if (Enum.GetName<WildSpawnType>(type) == null)
+                if (Enum.GetName<WildSpawnType>(type) == null && customBotTypeService.TryGetCustomTypeName((int)type) == null)
                 {
                     logger.Warning($"Bot type enum name not found for type '{type}' when setting revenge by faction '{factionName}'.");
                     continue;
                 }
-                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type) ?? string.Empty, out var botType))
+                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
                 {
                     AddRevengeByFaction(botType, factionName);
                 }

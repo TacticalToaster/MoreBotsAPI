@@ -15,7 +15,7 @@ namespace MoreBotsServer.Services;
 
 [Injectable(InjectionType.Singleton)]
 public class MoreBotsCustomBotConfigService(
-    ISptLogger<MoreBotsCustomBotTypeService> logger,
+    MoreBotsLogger logger,
     ModHelper modHelper,
     JsonUtil jsonUtil,
     ConfigServer configServer
