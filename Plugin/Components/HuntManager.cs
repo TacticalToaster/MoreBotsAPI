@@ -16,32 +16,18 @@ namespace MoreBotsAPI.Components
     {
 
         public Dictionary<BotsGroup, IPlayer> huntGroups = new();
-        public Dictionary<string, WildSpawnType> huntEvents = new() {
-            { "blackDivHunt", (WildSpawnType)848421 }
-        };
-
-        private bool startNewHunt = false;
-        private WildSpawnType huntRole;
-        private BotsGroup newHuntGroup;
-        private List<string> unpickedHunts = new List<string>();
-
-        private float nextUpdate = 0f;
+        public Dictionary<string, WildSpawnType> huntEvents = new();
+        
 
         public void StartHunt(string huntEvent)
         {
-            huntRole = huntEvents[huntEvent];
-            startNewHunt = true;
             Singleton<BotEventHandler>.Instance.AnyEvent(huntEvent);
             Plugin.LogSource.LogInfo($"[MoreBotsAPI] Starting hunt event {huntEvent}");
         }
 
         public void InitRaid()
         {
-            unpickedHunts = [.. huntEvents.Keys];
-            
             Singleton<BotEventHandler>.Instance.AnyEvent("hunt");
-
-            nextUpdate = Time.time + 240f;
 
             Singleton<IBotGame>.Instance.BotsController.BotSpawner.OnBotCreated += OnBotCreated;
         }
@@ -83,7 +69,7 @@ namespace MoreBotsAPI.Components
 
                 if (
                     (bot.IsAI && validHuntRoles.TryGetValue(role, out var huntList) && huntList.Contains(targetRole)) ||
-                    (validPMCHunts.TryGetValue(role, out var sideList) &&  sideList.Contains(targetSide))
+                    (validPMCHunts.TryGetValue(role, out var sideList) && sideList.Contains(targetSide))
                     )
                 {
                     if (!huntGroups.ContainsKey(hunter.botOwner.BotsGroup))
@@ -111,7 +97,7 @@ namespace MoreBotsAPI.Components
 
                 if (
                     (bot.IsAI && validHuntRoles.TryGetValue(role, out var huntList) && huntList.Contains(targetRole)) ||
-                    (validPMCHunts.TryGetValue(role, out var sideList) &&  sideList.Contains(targetSide))
+                    (validPMCHunts.TryGetValue(role, out var sideList) && sideList.Contains(targetSide))
                 )
                 {
                     if (!huntGroups.ContainsKey(hunter.botOwner.BotsGroup))
