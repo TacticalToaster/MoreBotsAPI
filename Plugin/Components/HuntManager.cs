@@ -27,29 +27,6 @@ namespace MoreBotsAPI.Components
 
         private float nextUpdate = 0f;
 
-        public void Update()
-        {
-
-            if (nextUpdate > Time.time) return;
-            
-            if (Singleton<GameWorld>.Instantiated == false ||
-                Singleton<GameWorld>.Instance is HideoutGameWorld)
-            {
-                nextUpdate = Time.time + 10f;
-                return;
-            }
-
-            nextUpdate = Time.time + 240f;
-
-            if (UnityEngine.Random.Range(0, 100) < 8 && unpickedHunts.Count > 0)
-            {
-                var randomEvent = unpickedHunts.Random();
-                if (randomEvent == null) return;
-                unpickedHunts.Remove(randomEvent);
-                StartHunt(randomEvent);
-            }
-        }
-
         public void StartHunt(string huntEvent)
         {
             huntRole = huntEvents[huntEvent];
