@@ -18,6 +18,8 @@ namespace MoreBotsAPI
         public List<string> BrainsToApply;
         // Layers to remove from the brains above, to prevent default EFT behaviors from interferring with SAIN. Typically, you'd remove combat layers here.
         public List<string> LayersToRemove;
+        // SAIN difficulty modifier, scavs are 0.3f, bosses range 0.75f - 1f, raiders/rogues are 0.66f
+        public float DifficultyModifier = 0.5f;
 
         public SAINSettings(int wildSpawnType)
         {

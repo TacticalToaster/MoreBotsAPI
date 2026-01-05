@@ -8,6 +8,7 @@ using SAIN.Preset.BotSettings.SAINSettings;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using SAIN;
 
 namespace MoreBotsAPI.Interop
 {
@@ -51,7 +52,12 @@ namespace MoreBotsAPI.Interop
                     setting.BrainsToApply = new List<string>() { setting.BaseBrain };
                 }
 
-                BrainManager.RemoveLayers(layers, setting.BrainsToApply, new List<WildSpawnType> { (WildSpawnType)setting.WildSpawnType });
+                var roleList = new List<WildSpawnType>() { (WildSpawnType)setting.WildSpawnType };
+                
+                BigBrainHandler.BrainAssignment.AddCustomLayersToBrainsAndRoles(setting.BrainsToApply, roleList, false);
+                BigBrainHandler.BrainAssignment.ToggleVanillaLayersForBrainsAndRoles(setting.BrainsToApply, roleList, layers, false);
+                
+                //BrainManager.RemoveLayers(layers, setting.BrainsToApply, new List<WildSpawnType> { (WildSpawnType)setting.WildSpawnType });
             }
         }
 
@@ -135,9 +141,8 @@ namespace MoreBotsAPI.Interop
         {
             Plugin.LogSource.LogInfo("Creating custom bot types for SAIN...");
 
-            var Preset = SAINPresetClass.Instance;
-            var botSettings = Preset.BotSettings;
-            BotDifficulty[] Difficulties = { BotDifficulty.easy, BotDifficulty.normal, BotDifficulty.hard, BotDifficulty.impossible };
+            var preset = SAINPresetClass.Instance;
+            var botSettings = preset.BotSettings;
 
             foreach (var setting in CustomWildSpawnTypeManager.GetSAINSettings())
             {
@@ -149,34 +154,11 @@ namespace MoreBotsAPI.Interop
                     WildSpawnType = (WildSpawnType)setting.WildSpawnType,
                     BaseBrain = setting.BaseBrain
                 };
-                BotTypeDefinitions.BotTypesList.Add(botType);
-                BotTypeDefinitions.BotTypes.Add(botType.WildSpawnType, botType);
-                BotTypeDefinitions.BotTypesNames.Add(botType.Name);
-
-                SAINBotSettingsClass.DefaultDifficultyModifier.Add(botType.WildSpawnType, 0.5f);
-
-                var wildSpawnType = botType.WildSpawnType;
-                var name = botType.Name;
-
-                SAINSettingsGroupClass sainSettingsGroup;
-                if (Preset.Info.IsCustom == false || !SAINPresetClass.Import(out sainSettingsGroup, Preset.Info.Name, name, "BotSettings"))
-                {
-                    sainSettingsGroup = new SAINSettingsGroupClass(Difficulties)
-                    {
-                        Name = name,
-                        WildSpawnType = wildSpawnType,
-                        DifficultyModifier = SAINBotSettingsClass.DefaultDifficultyModifier[wildSpawnType]
-                    };
-
-                    UpdateSAINSettingsToEFTDefault(wildSpawnType, sainSettingsGroup);
-
-                    if (Preset.Info.IsCustom == true)
-                    {
-                        SAINPresetClass.Export(sainSettingsGroup, Preset.Info.Name, name, "BotSettings");
-                    }
-                }
-
-                botSettings.SAINSettings.Add(wildSpawnType, sainSettingsGroup);
+                
+                BotTypeDefinitions.AddBotType(botType);
+                
+                botSettings.AddBotTypeToSettings(botType, setting.DifficultyModifier);
+                
 
                 Plugin.LogSource.LogInfo($"Added SAIN BotType: {botType.Name} with WildSpawnType {botType.WildSpawnType}");
             }
