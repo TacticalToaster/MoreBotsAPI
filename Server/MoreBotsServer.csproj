@@ -18,12 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="config.jsonc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="fastJSON5" Version="1.0.4">
       <Private>true</Private>
       <CopyLocal>true</CopyLocal>
@@ -38,4 +32,14 @@
   <ItemGroup>
     <Folder Include="Helpers\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Resources\config.jsonc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="@echo off&#xA;setlocal enabledelayedexpansion&#xA;&#xA;REM Set variables&#xA;set MODNAME=$(TargetName)&#xA;set DLLPATH=$(TargetDir)$(TargetName).dll&#xA;set OUTDIR=..\..\..\SPT\user\mods\%25MODNAME%25&#xA;set RESOURCESDIR=$(ProjectDir)Resources&#xA;&#xA;REM Create output directory if it doesn't exist&#xA;if not exist &quot;%25OUTDIR%25&quot; mkdir &quot;%25OUTDIR%25&quot;&#xA;&#xA;REM Clear the output directory (except the dll we're about to copy)&#xA;if exist &quot;%25OUTDIR%25&quot; (&#xA;    for /d %25%25D in (&quot;%25OUTDIR%25\*&quot;) do rmdir /s /q &quot;%25%25D&quot;&#xA;    for %25%25F in (&quot;%25OUTDIR%25\*&quot;) do (&#xA;        if /i not &quot;%25%25~nxF&quot;==&quot;$(TargetName).dll&quot; del /q &quot;%25%25F&quot;&#xA;    )&#xA;)&#xA;&#xA;REM Copy the DLL file&#xA;copy /Y &quot;%25DLLPATH%25&quot; &quot;%25OUTDIR%25\&quot; &gt;nul 2&gt;&amp;1&#xA;echo [PostBuild] Copied %25MODNAME%25.dll&#xA;&#xA;REM Copy all contents from Resources folder recursively&#xA;if exist &quot;%25RESOURCESDIR%25&quot; (&#xA;    xcopy &quot;%25RESOURCESDIR%25&quot; &quot;%25OUTDIR%25&quot; /E /I /Y &gt;nul 2&gt;&amp;1&#xA;    echo [PostBuild] Copied Resources to output directory&#xA;) else (&#xA;    echo [PostBuild] Warning: Resources folder not found at %25RESOURCESDIR%25&#xA;)&#xA;&#xA;echo [PostBuild] Build output: %25OUTDIR%25" />
+  </Target>
 </Project>

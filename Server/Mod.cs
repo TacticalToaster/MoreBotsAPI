@@ -10,6 +10,7 @@ using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
 using System.Reflection;
+using MoreBotsServer.Models;
 
 namespace MoreBotsServer;
 
@@ -19,7 +20,7 @@ public record ModMetadata : AbstractModMetadata
     public override string Name { get; init; } = "MoreBotsAPI";
     public override string Author { get; init; } = "TacticalToaster";
     public override List<string>? Contributors { get; init; } = new() { };
-    public override SemanticVersioning.Version Version { get; init; } = new(1, 1, 1);
+    public override SemanticVersioning.Version Version { get; init; } = new(2, 0, 0);
     public override SemanticVersioning.Range SptVersion { get; init; } = new("~4.0.0");
     public override List<string>? Incompatibilities { get; init; }
     public override Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; }
@@ -125,6 +126,109 @@ public class MoreBotsSettingsRouter : DynamicRouter
                 ) => {
                     var result = _customBotTypeService.GetBotDifficulties(url, (EmptyRequestData)info, sessionID, output);
                     return await new ValueTask<string>(_httpResponseUtil.NoBody(result));
+                }
+            )
+        ];
+    }
+}
+
+[Injectable]
+public class MoreBotsGetFactionsRouter : StaticRouter
+{
+    private static HttpResponseUtil _httpResponseUtil;
+    private static FactionService _factionService;
+
+    public MoreBotsGetFactionsRouter(
+        FactionService factionService,
+        JsonUtil jsonUtil,
+        HttpResponseUtil httpResponseUtil) : base(jsonUtil, GetCustomRoutes())
+    {
+        _httpResponseUtil = httpResponseUtil;
+        _factionService = factionService;
+    }
+
+    private static List<RouteAction> GetCustomRoutes()
+    {
+        return
+        [
+            new RouteAction(
+                "/morebotsapi/getfactions",
+                async (
+                    url,
+                    info,
+                    sessionID,
+                    output
+                ) => {
+                    return await new ValueTask<string>(_httpResponseUtil.NoBody(_factionService.GetAllFactions()));
+                }
+            )
+        ];
+    }
+}
+
+[Injectable]
+public class MoreBotsFactionUpdateRevengeRouter : StaticRouter
+{
+    private static HttpResponseUtil _httpResponseUtil;
+    private static FactionService _factionService;
+
+    public MoreBotsFactionUpdateRevengeRouter(
+        FactionService factionService,
+        JsonUtil jsonUtil,
+        HttpResponseUtil httpResponseUtil) : base(jsonUtil, GetCustomRoutes())
+    {
+        _httpResponseUtil = httpResponseUtil;
+        _factionService = factionService;
+    }
+
+    private static List<RouteAction> GetCustomRoutes()
+    {
+        return
+        [
+            new RouteAction<UpdateRevengeRequest>(
+                "/morebotsapi/updaterevenge",
+                async (
+                    url,
+                    info,
+                    sessionID,
+                    output
+                ) => {
+                    _factionService.AdjustFactionRevenge(info);
+                    return await new ValueTask<string>(string.Empty);
+                }
+            )
+        ];
+    }
+}
+
+[Injectable]
+public class MoreBotsFactionGetRevengesRouter : StaticRouter
+{
+    private static HttpResponseUtil _httpResponseUtil;
+    private static FactionService _factionService;
+
+    public MoreBotsFactionGetRevengesRouter(
+        FactionService factionService,
+        JsonUtil jsonUtil,
+        HttpResponseUtil httpResponseUtil) : base(jsonUtil, GetCustomRoutes())
+    {
+        _httpResponseUtil = httpResponseUtil;
+        _factionService = factionService;
+    }
+
+    private static List<RouteAction> GetCustomRoutes()
+    {
+        return
+        [
+            new RouteAction(
+                "/morebotsapi/getrevenges",
+                async (
+                    url,
+                    info,
+                    sessionID,
+                    output
+                ) => {
+                    return await new ValueTask<string>(_httpResponseUtil.NoBody(_factionService.GetFactionsRevenges()));
                 }
             )
         ];

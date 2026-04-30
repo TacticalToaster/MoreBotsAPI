@@ -11,12 +11,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using BepInEx.Bootstrap;
+using MoreBotsAPI.Interop;
 using UnityEngine;
 
 namespace MoreBotsAPI
 {
     [BepInDependency("xyz.drakia.bigbrain", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.fika.core", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(ClientInfo.GUID, ClientInfo.PluginName, ClientInfo.Version)]
     public class Plugin : BaseUnityPlugin
     {
@@ -25,6 +28,8 @@ namespace MoreBotsAPI
         public static ConfigEntry<bool> DrawBotZones;
 
         public static List<BotZone> BotZones;
+
+        public static bool FikaInitialized = false;
 
         public static string pluginPath = Path.Combine(Environment.CurrentDirectory, "BepInEx", "plugins", "MoreBotsAPI");
 
@@ -69,12 +74,30 @@ namespace MoreBotsAPI
             new SuitableFollowersListPatch().Enable();
             new FenceLoyaltyWarnPatch().Enable();
             new NewGamePatch().Enable();
+            new BotsControllerInitPatch().Enable();
+            new FactionRaidEndPatch().Enable();
+            new BotsGroupIsPlayerEnemyPatch().Enable();
+            
+            CheckPlugins();
+            
+            this.GetOrAddComponent<HuntManager>();
+            this.GetOrAddComponent<FactionManager>();
 
             InitConfig();
 
             int oldWildSpawnTypeConverter = Array.FindIndex<JsonConverter>(JsonSerializerSettingsClass.Converters, c => c.GetType() == typeof(GClass1866<WildSpawnType>));
             LogSource.LogInfo($"Old WildSpawnTypeFromInt converter index: {oldWildSpawnTypeConverter} {JsonSerializerSettingsClass.Converters[oldWildSpawnTypeConverter]}");
             JsonSerializerSettingsClass.Converters[oldWildSpawnTypeConverter] = new WildSpawnTypeFromIntConverter<WildSpawnType>(true);
+        }
+
+        public void CheckPlugins()
+        {
+            if (Chainloader.PluginInfos.ContainsKey("com.fika.core"))
+            {
+                FikaInitialized = true;
+                
+                FikaInterop.InitializeInterop();
+            }
         }
 
         private void InitConfig()

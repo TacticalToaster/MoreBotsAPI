@@ -1,9 +1,11 @@
+using MoreBotsServer.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Services.Mod;
 using SPTarkov.Server.Core.Utils;
 
 namespace MoreBotsServer.Services;
@@ -13,17 +15,28 @@ public class FactionService
 {
     private readonly MoreBotsLogger logger;
     private readonly DatabaseService databaseService;
+    private readonly ProfileDataService profileDataService;
+    private readonly ProfileActivityService profileActivityService;
+    private readonly JsonUtil jsonUtil;
     private readonly MoreBotsCustomBotTypeService customBotTypeService;
+
+    private const string ModKey = "MoreBotsAPI";
 
     public FactionService(
         MoreBotsLogger logger,
         DatabaseService databaseService,
+        ProfileDataService profileDataService,
+        ProfileActivityService profileActivityService,
+        JsonUtil jsonUtil,
         MoreBotsCustomBotTypeService botTypeService
     )
     {
         this.logger = logger;
         this.databaseService = databaseService;
+        this.profileDataService = profileDataService;
+        this.profileActivityService = profileActivityService;
         this.customBotTypeService = botTypeService;
+        this.jsonUtil = jsonUtil;
         InitFactions();
     }
 
@@ -37,6 +50,85 @@ public class FactionService
     public Dictionary<string, Faction> GetFactions()
     {
         return Factions;
+    }
+
+    public Dictionary<string, Faction> GetAllFactions()
+    {
+        return Factions;
+    }
+
+    public Dictionary<string, List<string>> GetFactionsRevenges()
+    {
+        var profileRevenges = new Dictionary<string, List<string>>();
+        foreach (string profileID in profileActivityService.GetActiveProfileIdsWithinMinutes(10))
+        {
+            profileRevenges[profileID] = new List<string>();
+            var profileData = profileDataService.GetProfileData<ProfileData>(profileID, ModKey) ?? new ProfileData();
+
+            var revengeData = profileData.RevengeRaidsLeft;
+            foreach ((var faction, var raids) in revengeData)
+            {
+                if (raids > 0) profileRevenges[profileID].Add(faction);
+            }
+        }
+        return profileRevenges;
+    }
+
+    public void AdjustFactionRevenge(UpdateRevengeRequest updateRevengeRequest)
+    {
+        var profileRevengeData = updateRevengeRequest.RevengeUpdate;
+        if (profileRevengeData == null)
+        {
+            logger.Error($"Failed to parse updated revenge profile data.");
+            return;
+        }
+
+        // TODO: update this so it only affects people who were in the raid that just ended
+        foreach (string profileID in profileActivityService.GetActiveProfileIdsWithinMinutes(10))
+        {
+            var revengeData = profileDataService.GetProfileData<ProfileData>(profileID, ModKey) ?? new ProfileData();
+
+            foreach (var faction in revengeData.RevengeRaidsLeft.Keys)
+            {
+                if (revengeData.RevengeRaidsLeft[faction] > 0) revengeData.RevengeRaidsLeft[faction]--;
+                logger.Info($"{profileID} revenge raids with faction {faction} decremented to {revengeData.RevengeRaidsLeft[faction]}.");
+            }
+            
+            profileDataService.SaveProfileData(profileID, ModKey, revengeData);
+        }
+        
+        foreach ((string profileID, List<string> revengeFactions) in profileRevengeData)
+        {
+            var revengeData = profileDataService.GetProfileData<ProfileData>(profileID, ModKey) ?? new ProfileData();
+            
+            foreach (var revengeFaction in revengeFactions)
+            {
+                if (Factions.TryGetValue(revengeFaction, out var faction))
+                {
+                    revengeData.RevengeRaidsLeft[revengeFaction] = faction.RevengeRaidAmount;
+                    logger.Info($"{profileID} revenge raids with faction {revengeFaction} set to {revengeData.RevengeRaidsLeft[revengeFaction]}.");
+                }
+                else
+                {
+                    logger.Warning($"Faction '{revengeFaction}' not found when adjusting revenge after raid.");
+                }
+            }
+            
+            profileDataService.SaveProfileData(profileID, ModKey, revengeData);
+            
+        }
+    }
+    
+    public void SetRevengeAfterRaids(string factionName, bool revengeAfterRaids, int revengeRaidAmount = 3)
+    {
+        if (Factions.TryGetValue(factionName, out var faction))
+        {
+            faction.SetRevengeAfterRaids(revengeAfterRaids, revengeRaidAmount);
+        }
+        else
+        {
+            logger.Warning($"Faction '{factionName}' not found when setting revenge after raids.");
+        }
     }
 
     public void AddEnemyByFaction(BotType botType, string factionName)
