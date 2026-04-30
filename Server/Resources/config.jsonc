@@ -1,4 +1,4 @@
 {
-  "enableDebugLogs": true,
-  "increaseBotCapAmount": 0
+  "enableDebugLogs": false,
+  "increaseBotCapAmount": 5
 }
