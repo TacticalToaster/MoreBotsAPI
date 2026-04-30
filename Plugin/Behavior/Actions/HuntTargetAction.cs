@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace MoreBotsAPI.Behavior.Actions
 {
-    internal class HuntTargetAction : CustomLogic
+    public class HuntTargetAction : CustomLogic
     {
         private float nextUpdate;
         private BotHuntManager huntManager;

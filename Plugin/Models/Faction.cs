@@ -1,4 +1,9 @@
-using SPTarkov.Server.Core.Models.Eft.Common;
+
+using System.Collections.Generic;
+using System.Linq;
+using EFT;
+
+namespace MoreBotsAPI.Models;
 
 public class Faction
 {
@@ -29,11 +34,5 @@ public class Faction
                 BotTypes.Add(botType);
             }
         }
-    }
-    
-    public void SetRevengeAfterRaids(bool revengeAfterRaids, int revengeRaidAmount = 3)
-    {
-        RevengeAfterRaids = revengeAfterRaids;
-        RevengeRaidAmount = revengeRaidAmount;
     }
 }

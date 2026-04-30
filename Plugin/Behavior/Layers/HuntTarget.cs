@@ -10,7 +10,7 @@ using MoreBotsAPI.Components;
 
 namespace MoreBotsAPI.Behavior.Layers
 {
-    internal class HuntTargetLayer : CustomLayer
+    public class HuntTargetLayer : CustomLayer
     {
         public BotHuntManager huntManager;
 
@@ -25,12 +25,13 @@ namespace MoreBotsAPI.Behavior.Layers
 
         public HuntTargetLayer(BotOwner botOwner, int priority) : base(botOwner, priority)
         {
-            huntManager = botOwner.GetOrAddComponent<BotHuntManager>();
+            huntManager = BotOwner.GetOrAddComponent<BotHuntManager>();
         }
 
         public override void Start()
         {
             base.Start();
+            huntManager = BotOwner.GetOrAddComponent<BotHuntManager>();
         }
 
         public override void Stop()
@@ -53,11 +54,15 @@ namespace MoreBotsAPI.Behavior.Layers
 
         public override bool IsActive()
         {
-            if (!huntManager.HasHuntTarget())
+            if (huntManager == null || !huntManager.HasHuntTarget())
                 return false;
+            
+            Plugin.LogSource.LogMessage("HUNT IS ACTIVE");
 
 
             getNextAction();
+            
+            Plugin.LogSource.LogMessage("HUNT REALLY IS ACTIVE");
             return true;
         }
 

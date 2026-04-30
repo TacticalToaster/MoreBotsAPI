@@ -18,6 +18,8 @@ namespace MoreBotsAPI.Components
         public Dictionary<BotsGroup, IPlayer> huntGroups = new();
         public Dictionary<string, WildSpawnType> huntEvents = new();
         
+        public event Action<BotHuntManager> OnBotHuntInit;
+        
 
         public void StartHunt(string huntEvent)
         {
@@ -41,6 +43,7 @@ namespace MoreBotsAPI.Components
             if (huntManager.huntTarget != null) return;
             
             huntManager.Init(bot, this);
+            OnBotHuntInit?.Invoke(huntManager);
             FindFirstHuntTarget(huntManager);
         }
 
@@ -58,6 +61,22 @@ namespace MoreBotsAPI.Components
             {
                 hunter.huntTarget = player;
                 return;
+            }
+
+            if (!hunter.priorityTargets.IsNullOrEmpty())
+            {
+                foreach (var target in hunter.priorityTargets)
+                {
+                    if (!target.HealthController.IsAlive) continue;
+                    
+                    if (!huntGroups.ContainsKey(hunter.botOwner.BotsGroup))
+                    {
+                        AddHuntTarget(hunter.botOwner.BotsGroup, target);
+                    }
+
+                    hunter.huntTarget = huntGroups[hunter.botOwner.BotsGroup];
+                    return;
+                }
             }
 
             foreach (var bot in allBots)
@@ -88,6 +107,22 @@ namespace MoreBotsAPI.Components
             var role = hunter.botOwner.Profile.Info.Settings.Role;
             var allBots = Singleton<GameWorld>.Instance.AllAlivePlayersList.Randomize();
 
+            if (!hunter.priorityTargets.IsNullOrEmpty())
+            {
+                foreach (var target in hunter.priorityTargets)
+                {
+                    if (!target.HealthController.IsAlive) continue;
+                    
+                    if (!huntGroups.ContainsKey(hunter.botOwner.BotsGroup))
+                    {
+                        AddHuntTarget(hunter.botOwner.BotsGroup, target);
+                    }
+
+                    hunter.huntTarget = huntGroups[hunter.botOwner.BotsGroup];
+                    return;
+                }
+            }
+            
             foreach (var bot in allBots)
             {
                 if (!bot.HealthController.IsAlive) continue;

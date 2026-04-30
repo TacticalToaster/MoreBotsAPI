@@ -6,5 +6,5 @@ public static class MoreBotsLoadOrder
 {
     public const int LoadFactions = OnLoadOrder.PostDBModLoader + 6;
 
-    public const int LoadBots = OnLoadOrder.PostDBModLoader + 7;
+    public const int LoadBots = OnLoadOrder.PostDBModLoader + 80085;
 }

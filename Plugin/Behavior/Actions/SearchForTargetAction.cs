@@ -11,7 +11,7 @@ using UnityEngine;
 namespace MoreBotsAPI.Behavior.Actions
 {
 
-    internal class SearchForTargetAction : CustomLogic
+    public class SearchForTargetAction : CustomLogic
     {
         private BotNodeAbstractClass baseAction;
         private float endTime;

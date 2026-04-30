@@ -23,6 +23,7 @@ namespace MoreBotsAPI.Components
         public bool shouldSearch = false;
         public bool active = false;
         public List<BotHuntManager> followerManagers;
+        public List<IPlayer> priorityTargets = new();
 
         private float updateTime;
         private float locationTime;
