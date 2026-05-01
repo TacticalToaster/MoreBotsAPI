@@ -56,13 +56,10 @@ namespace MoreBotsAPI.Behavior.Layers
         {
             if (huntManager == null || !huntManager.HasHuntTarget())
                 return false;
-            
-            Plugin.LogSource.LogMessage("HUNT IS ACTIVE");
 
 
             getNextAction();
             
-            Plugin.LogSource.LogMessage("HUNT REALLY IS ACTIVE");
             return true;
         }
 
