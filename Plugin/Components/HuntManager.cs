@@ -36,7 +36,9 @@ namespace MoreBotsAPI.Components
 
         public void OnBotCreated(BotOwner bot)
         {
-            if (!bot.SpawnProfileData.SpawnParams.Id_spawn.ToLower().Contains("hunt")) return;
+            // Bots spawned outside the normal EFT flow (e.g. other mods' custom bots) can have a
+            // null SpawnProfileData/Id_spawn; guard so this handler can't abort their spawn.
+            if (bot?.SpawnProfileData?.SpawnParams?.Id_spawn?.ToLower().Contains("hunt") != true) return;
 
             var huntManager = bot.gameObject.GetOrAddComponent<BotHuntManager>();
 
