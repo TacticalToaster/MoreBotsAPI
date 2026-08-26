@@ -1,6 +1,7 @@
 ﻿using BepInEx.Logging;
 using Comfort.Common;
 using EFT;
+using EFT.CameraControl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,9 +61,9 @@ namespace MoreBotsAPI.Components
             Logger.LogInfo("ZoneDebugComponent enabled");
 
             // If DLSS or FSR are enabled, set a screen scale value
-            if (CameraClass.Instance.SSAA.isActiveAndEnabled)
+            if (CameraManager.Instance.SSAA.isActiveAndEnabled)
             {
-                screenScale = (float)CameraClass.Instance.SSAA.GetOutputWidth() / (float)CameraClass.Instance.SSAA.GetInputWidth();
+                screenScale = (float)CameraManager.Instance.SSAA.GetOutputWidth() / (float)CameraManager.Instance.SSAA.GetInputWidth();
                 Logger.LogDebug($"DLSS or FSR is enabled, scale screen offsets by {screenScale}");
             }
         }

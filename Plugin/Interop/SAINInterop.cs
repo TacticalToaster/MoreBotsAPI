@@ -4,7 +4,6 @@ using HarmonyLib;
 using SAIN.Attributes;
 using SAIN.Preset;
 using SAIN.Preset.BotSettings;
-using SAIN.Preset.BotSettings.SAINSettings;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -76,12 +75,12 @@ namespace MoreBotsAPI.Interop
                     Description = setting.Description,
                     Section = setting.Section,
                     WildSpawnType = (WildSpawnType)setting.WildSpawnType,
-                    BaseBrain = setting.BaseBrain
+                    //BaseBrain = setting.BaseBrain
                 };
                 
-                BotTypeDefinitions.AddBotType(botType);
+                //BotTypeDefinitions.AddBotType(botType);
                 
-                botSettings.AddBotTypeToSettings(botType, setting.DifficultyModifier);
+                //botSettings.AddBotTypeToSettings(botType, setting.DifficultyModifier);
                 
 
                 Plugin.LogSource.LogInfo($"Added SAIN BotType: {botType.Name} with WildSpawnType {botType.WildSpawnType}");

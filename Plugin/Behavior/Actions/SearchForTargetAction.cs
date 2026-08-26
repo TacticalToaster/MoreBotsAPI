@@ -13,16 +13,16 @@ namespace MoreBotsAPI.Behavior.Actions
 
     public class SearchForTargetAction : CustomLogic
     {
-        private BotNodeAbstractClass baseAction;
+        private AICoreNode baseAction;
         private float endTime;
         private BotHuntManager huntManager;
 
         public SearchForTargetAction(BotOwner botOwner) : base(botOwner)
         {
             if (botOwner.Boss.IamBoss)
-                baseAction = BotActionNodesClass.CreateNode(BotLogicDecision.simplePatrol, botOwner);
+                baseAction = AIActionsList.CreateNode(BotLogicDecision.simplePatrol, botOwner);
             else
-                baseAction = BotActionNodesClass.CreateNode(BotLogicDecision.followerPatrol, botOwner);
+                baseAction = AIActionsList.CreateNode(BotLogicDecision.followerPatrol, botOwner);
         }
 
         public override void Start()

@@ -2,7 +2,7 @@
 
 namespace MoreBotsAPI.Prepatch
 {
-    public static class Utils
+    public static class EnumUtils
     {
         public static void AddEnumValue(ref TypeDefinition type, string name, object value)
         {

@@ -3,6 +3,7 @@ using HarmonyLib;
 using SPT.Reflection.Patching;
 using System;
 using System.Reflection;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MoreBotsAPI.Patches
 {
@@ -15,19 +16,19 @@ namespace MoreBotsAPI.Patches
 
         [PatchPostfix]
         [HarmonyPriority(Priority.First)] // Make sure this runs before BigBrain so we can override it
-        public static void PatchPrefix(StandartBotBrain __instance, BotOwner ___BotOwner_0)
+        public static void PatchPrefix(StandartBotBrain __instance, BotOwner ____owner)
         {
             try
             {
-                if (CustomWildSpawnTypeManager.IsCustomWildSpawnType((int)___BotOwner_0.Profile.Info.Settings.Role))
+                if (CustomWildSpawnTypeManager.IsCustomWildSpawnType((int)____owner.Profile.Info.Settings.Role))
                 {
                     __instance.BaseBrain?.Dispose();
                     __instance.Agent?.Dispose();
 
-                    var customType = ___BotOwner_0.Profile.Info.Settings.Role.GetCustomType();
-                    Logger.LogMessage($"Changing brain for custom bot {___BotOwner_0.Profile.Info.Settings.Role}.");
-                    __instance.BaseBrain = GetBaseBrain(___BotOwner_0, customType.BaseBrain);
-                    __instance.Agent = GetAgent(___BotOwner_0, __instance.BaseBrain, __instance);
+                    var customType = ____owner.Profile.Info.Settings.Role.GetCustomType();
+                    Logger.LogMessage($"Changing brain for custom bot {____owner.Profile.Info.Settings.Role}.");
+                    __instance.BaseBrain = GetBaseBrain(____owner, customType.BaseBrain);
+                    __instance.Agent = GetAgent(____owner, __instance.BaseBrain, __instance);
 
                     var eventDelegate = (MulticastDelegate)
                         typeof(StandartBotBrain).GetField(nameof(StandartBotBrain.OnSetStrategy), BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
@@ -48,10 +49,10 @@ namespace MoreBotsAPI.Patches
             }
         }
 
-        public static AICoreAgentClass<BotLogicDecision> GetAgent(BotOwner botOwner, BaseBrain baseBrain, StandartBotBrain standartBotBrain)
+        public static AICoreAgent<BotLogicDecision> GetAgent(BotOwner botOwner, BaseBrain baseBrain, StandartBotBrain standartBotBrain)
         {
             var name = botOwner.name + " " + botOwner.Profile.Info.Settings.Role.ToString();
-            return new AICoreAgentClass<BotLogicDecision>(botOwner.BotsController.AICoreController, baseBrain, BotActionNodesClass.ActionsList(botOwner), botOwner.gameObject, name, new Func<BotLogicDecision, BotNodeAbstractClass>(standartBotBrain.method_0));
+            return new AICoreAgent<BotLogicDecision>(botOwner.BotsController.AICoreController, baseBrain, AIActionsList.ActionsList(botOwner), botOwner.gameObject, name, new Func<BotLogicDecision, AICoreNode>(standartBotBrain.CG_Activate));
         }
 
         public static BaseBrain GetBaseBrain(BotOwner botOwner, int brainType)
@@ -61,164 +62,164 @@ namespace MoreBotsAPI.Patches
             switch ((WildSpawnType)brainType)
             {
                 case WildSpawnType.marksman:
-                    baseBrain = new GClass346(botOwner);
+                    baseBrain = new MarksmanLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossTest:
-                    baseBrain = new GClass320(botOwner);
+                    baseBrain = new BossTestLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossBully:
-                    baseBrain = new GClass314(botOwner);
+                    baseBrain = new BossBullyLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerBully:
-                    baseBrain = new GClass332(botOwner);
+                    baseBrain = new FollowerBullyLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossKilla:
-                    baseBrain = new GClass342(botOwner);
+                    baseBrain = new KillaLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossKojaniy:
-                    baseBrain = new GClass357(botOwner);
+                    baseBrain = new BossKojaniyLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerKojaniy:
-                    baseBrain = new BossKojaniyBrainClass(botOwner);
+                    baseBrain = new FollowerKojaniyLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.pmcBot:
                 case WildSpawnType.arenaFighterEvent:
-                    baseBrain = new GClass349(botOwner, false);
+                    baseBrain = new PmcLayersStrategy(botOwner, false);
                     break;
                 case WildSpawnType.cursedAssault:
-                    baseBrain = new GClass322(botOwner);
+                    baseBrain = new CursedAssaultLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossGluhar:
-                    baseBrain = new GClass338(botOwner);
+                    baseBrain = new BossGluharLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerGluharAssault:
-                    baseBrain = new GClass339(botOwner);
+                    baseBrain = new FollowerGluharAssaultLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerGluharSecurity:
                 case WildSpawnType.followerGluharSnipe:
-                    baseBrain = new GClass340(botOwner);
+                    baseBrain = new FollowerGluharProtectLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerGluharScout:
-                    baseBrain = new GClass341(botOwner);
+                    baseBrain = new FollowerGluharScoutLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerSanitar:
-                    baseBrain = new GClass333(botOwner);
+                    baseBrain = new FollowerSanitarLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossSanitar:
-                    baseBrain = new GClass317(botOwner);
+                    baseBrain = new BossSanitarLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.assaultGroup:
-                    baseBrain = new GClass311(botOwner, true);
+                    baseBrain = new AssaultGroupLayersStrategy(botOwner, true);
                     break;
                 case WildSpawnType.sectantWarrior:
-                    baseBrain = new GClass360(botOwner);
+                    baseBrain = new SectantWarriorLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.sectantPriest:
-                    baseBrain = new GClass362(botOwner);
+                    baseBrain = new SectantPriestLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossTagilla:
                 case WildSpawnType.infectedTagilla:
-                    baseBrain = new GClass319(botOwner);
+                    baseBrain = new BossTagillaLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerTagilla:
-                    baseBrain = new GClass334(botOwner);
+                    baseBrain = new FollowerTagillaLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.exUsec:
-                    baseBrain = new ExUsecBrainClass(botOwner);
+                    baseBrain = new ExUsecLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.gifter:
-                    baseBrain = new GClass336(botOwner);
+                    baseBrain = new GifterLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossKnight:
-                    baseBrain = new BossKnightBrainClass(botOwner);
+                    baseBrain = new BossKnightLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerBigPipe:
-                    baseBrain = new GClass329(botOwner);
+                    baseBrain = new FollowerBigPipeLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerBirdEye:
-                    baseBrain = new GClass330(botOwner);
+                    baseBrain = new FollowerBirdEyeLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossZryachiy:
-                    baseBrain = new GClass321(botOwner);
+                    baseBrain = new BossZryachiyLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerZryachiy:
-                    baseBrain = new GClass335(botOwner);
+                    baseBrain = new FollowerZryachiyLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossBoar:
-                    baseBrain = new GClass312(botOwner);
+                    baseBrain = new BossBoarLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerBoar:
-                    baseBrain = new GClass331(botOwner, false);
+                    baseBrain = new FollowerBoarLayersStrategy(botOwner, false);
                     break;
                 case WildSpawnType.arenaFighter:
-                    baseBrain = new GClass310(botOwner);
+                    baseBrain = new ArenaFighterLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossBoarSniper:
-                    baseBrain = new GClass313(botOwner);
+                    baseBrain = new BossBoarLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.crazyAssaultEvent:
-                    baseBrain = new GClass325(botOwner);
+                    baseBrain = new ObdolbosLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.peacefullZryachiyEvent:
-                    baseBrain = new GClass347(botOwner);
+                    baseBrain = new PeacefullZryachiyEventLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.sectactPriestEvent:
-                    baseBrain = new GClass352(botOwner);
+                    baseBrain = new SectactPriestEventStrategy(botOwner);
                     break;
                 case WildSpawnType.ravangeZryachiyEvent:
-                    baseBrain = new GClass351(botOwner);
+                    baseBrain = new RavangeZryachiyEventLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerBoarClose1:
                 case WildSpawnType.followerBoarClose2:
-                    baseBrain = new GClass331(botOwner, true);
+                    baseBrain = new FollowerBoarLayersStrategy(botOwner, true);
                     break;
                 case WildSpawnType.bossKolontay:
-                    baseBrain = new GClass343(botOwner);
+                    baseBrain = new BossKolontayLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.followerKolontayAssault:
-                    baseBrain = new GClass344(botOwner);
+                    baseBrain = new FollowerKolontayAssaultStrategy(botOwner);
                     break;
                 case WildSpawnType.followerKolontaySecurity:
-                    baseBrain = new GClass345(botOwner);
+                    baseBrain = new FollowerKolontaySecutiryLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.shooterBTR:
-                    baseBrain = new GClass354(botOwner);
+                    baseBrain = new ShooterBTRLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossPartisan:
-                    baseBrain = new GClass316(botOwner);
+                    baseBrain = new BossPartisanLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.pmcBEAR:
-                    baseBrain = new GClass348(botOwner, false);
+                    baseBrain = new PmcBearLayersStrategy(botOwner, false);
                     break;
                 case WildSpawnType.pmcUSEC:
-                    baseBrain = new GClass350(botOwner, false);
+                    baseBrain = new PmcUsecLayersStrategy(botOwner, false);
                     break;
                 case WildSpawnType.sectantPredvestnik:
-                    baseBrain = new GClass361(botOwner);
+                    baseBrain = new SectantPredvestnikLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.sectantPrizrak:
-                    baseBrain = new GClass363(botOwner);
+                    baseBrain = new SectantPrizrakLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.sectantOni:
-                    baseBrain = new GClass353(botOwner);
+                    baseBrain = new SectantOniLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.infectedAssault:
                 case WildSpawnType.infectedPmc:
                 case WildSpawnType.infectedCivil:
                 case WildSpawnType.infectedLaborant:
-                    baseBrain = new GClass324(botOwner);
+                    baseBrain = new InfectedLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossTagillaAgro:
-                    baseBrain = new GClass318(botOwner);
+                    baseBrain = new BossTagillaAgroLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.bossKillaAgro:
-                    baseBrain = new GClass315(botOwner);
+                    baseBrain = new BossKillaAgroLayersStrategy(botOwner);
                     break;
                 case WildSpawnType.tagillaHelperAgro:
-                    baseBrain = new GClass364(botOwner);
+                    baseBrain = new TagillaHelperAgroStrategy(botOwner);
                     break;
                 default:
-                    baseBrain = new GClass355(botOwner);
+                    baseBrain = new StandardAssaultLayersStrategy(botOwner);
                     break;
             }
 

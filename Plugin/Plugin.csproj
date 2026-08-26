@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>MoreBotsPlugin</AssemblyName>
     <Description>API for adding custom bot types.</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -22,10 +22,10 @@
 		  <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="DrakiaXYZ-BigBrain">
-		  <HintPath>..\..\plugins\DrakiaXYZ-BigBrain.dll</HintPath>
+		  <HintPath>..\..\..\BepInEx\plugins\DrakiaXYZ-BigBrain.dll</HintPath>
 		</Reference>
 		<Reference Include="SAIN">
-		  <HintPath>..\Reference\SAIN\SAIN.dll</HintPath>
+		  <HintPath>..\..\..\BepInEx\plugins\SAIN\SAIN.dll</HintPath>
 		</Reference>
 		<Reference Include="spt-custom">
 		  <HintPath>..\..\..\BepInEx\plugins\spt\spt-custom.dll</HintPath>
@@ -108,7 +108,8 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\..\..\..\BepInEx\plugins\MoreBotsAPI\$(TargetFileName)&quot;" />
+		<Exec Command='if not exist "$(ProjectDir)..\..\..\BepInEx\plugins\MoreBotsAPI\" mkdir "$(ProjectDir)..\..\..\BepInEx\plugins\MoreBotsAPI"' />
+		<Exec Command='copy /Y "$(TargetPath)" "$(ProjectDir)..\..\..\BepInEx\plugins\MoreBotsAPI\$(TargetFileName)"' />
 	</Target>
 
 </Project>

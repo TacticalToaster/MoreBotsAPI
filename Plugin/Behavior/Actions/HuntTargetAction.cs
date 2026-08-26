@@ -18,11 +18,11 @@ namespace MoreBotsAPI.Behavior.Actions
         private float nextUpdate;
         private BotHuntManager huntManager;
         private FieldInfo botZoneField = null;
-        private GClass395 baseSteeringLogic;
+        private LookAround baseSteeringLogic;
 
         public HuntTargetAction(BotOwner botOwner) : base(botOwner)
         {
-            baseSteeringLogic = new GClass395();
+            baseSteeringLogic = new LookAround();
 
             if (botZoneField == null)
             {

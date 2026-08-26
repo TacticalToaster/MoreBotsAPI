@@ -39,7 +39,7 @@ namespace MoreBotsAPI
         {
             var wildSpawnType = assembly.MainModule.GetType("EFT.WildSpawnType");
 
-            Utils.AddEnumValue(ref wildSpawnType, customType.WildSpawnTypeName, customType.WildSpawnTypeValue);
+            EnumUtils.AddEnumValue(ref wildSpawnType, customType.WildSpawnTypeName, customType.WildSpawnTypeValue);
 
             AddType(customType);
         }

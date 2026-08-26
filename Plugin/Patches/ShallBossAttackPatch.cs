@@ -5,11 +5,11 @@ using System.Reflection;
 
 namespace MoreBotsAPI.Patches
 {
-    public class FenceLoyaltyWarnPatch : ModulePatch
+    public class ShallBossAttackPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(BotGroupWarnData), nameof(BotGroupWarnData.method_9));
+            return AccessTools.Method(typeof(BotGroupWarnData), nameof(BotGroupWarnData.ShallBossAttack));
         }
 
         [PatchPostfix]

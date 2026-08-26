@@ -109,7 +109,7 @@ namespace MoreBotsAPI.Components
             {
                 followerManagers.Clear();
 
-                foreach (var follower in botOwner.BotsGroup.Members)
+                foreach (var follower in botOwner.BotsGroup._members)
                 {
                     if (follower.TryGetComponent<BotHuntManager>(out var manager))
                     {

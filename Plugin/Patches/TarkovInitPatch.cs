@@ -1,5 +1,6 @@
 ﻿using BepInEx.Bootstrap;
 using EFT;
+using EFT.AssetsManager;
 using EFT.InputSystem;
 using MoreBotsAPI.Interop;
 using SPT.Reflection.Patching;

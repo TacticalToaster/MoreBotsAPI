@@ -11,7 +11,7 @@ namespace MoreBotsAPI
         public Dictionary<int, T> intToEnumMap;
         public Dictionary<T, int> enumToIntMap;
 
-        public GClass1866<WildSpawnType> oldConverter;
+        public EnumConverter<WildSpawnType> oldConverter;
 
         public WildSpawnTypeFromIntConverter() : this(true)
         {
@@ -19,10 +19,10 @@ namespace MoreBotsAPI
 
         public WildSpawnTypeFromIntConverter(bool caseSensitive)
         {
-            oldConverter = new GClass1866<WildSpawnType>(false);
+            oldConverter = new EnumConverter<WildSpawnType>(false);
 
             isCaseSensitive = caseSensitive;
-            int count = GClass866<T>.Count;
+            int count = EnumHelper<T>.Count;
             intToEnumMap = new Dictionary<int, T>(count);
             enumToIntMap = new Dictionary<T, int>(count);
             foreach (T item in Enum.GetValues(typeof(T)))

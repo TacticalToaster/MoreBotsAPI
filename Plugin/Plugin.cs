@@ -39,7 +39,7 @@ namespace MoreBotsAPI
             // save the Logger to variable so we can use it elsewhere in the project
             LogSource = Logger;
 
-            FieldInfo excludedDifficultiesField = typeof(LocalBotSettingsProviderClass).GetField("Dictionary_1", BindingFlags.Static | BindingFlags.Public) ?? throw new InvalidOperationException("ExcludedDifficulties field not found.");
+            FieldInfo excludedDifficultiesField = typeof(BotInternalSettingsController).GetField("ExcludedDifficulties", BindingFlags.Static | BindingFlags.Public) ?? throw new InvalidOperationException("ExcludedDifficulties field not found.");
             var excludedDifficulties = (Dictionary<WildSpawnType, List<BotDifficulty>>)excludedDifficultiesField.GetValue(null);
 
             var defaultExcludedDifficulties = new List<BotDifficulty>
@@ -60,11 +60,11 @@ namespace MoreBotsAPI
 
                     Logger.LogInfo($"Successfully added {botType.WildSpawnTypeName} : {botType.WildSpawnTypeValue} to the excluded difficulties list");
                 }
-                Traverse.Create(typeof(BotSettingsRepoClass)).Field<Dictionary<WildSpawnType, GClass790>>("Dictionary_0").Value.Add((WildSpawnType)botType.WildSpawnTypeValue, new GClass790(botType.IsBoss, botType.IsFollower, botType.IsHostileToEverybody, $"ScavRole/{botType.ScavRole}", (ETagStatus)0));
+                Traverse.Create(typeof(WildSpawnTypeExtension)).Field<Dictionary<WildSpawnType, WildSpawnTypeSettings>>("_spawnTypeSettings").Value.Add((WildSpawnType)botType.WildSpawnTypeValue, new WildSpawnTypeSettings(botType.IsBoss, botType.IsFollower, botType.IsHostileToEverybody, $"ScavRole/{botType.ScavRole}", (ETagStatus)0));
 
                 if (botType.CountAsBossForStatistics.HasValue)
                 {
-                    BotSettingsRepoClass.Dictionary_0[(WildSpawnType)botType.WildSpawnTypeValue].CountAsBossForStatistics = botType.CountAsBossForStatistics.Value;
+                    WildSpawnTypeExtension._spawnTypeSettings[(WildSpawnType)botType.WildSpawnTypeValue].CountAsBossForStatistics = botType.CountAsBossForStatistics.Value;
                 }
             }
 
@@ -72,7 +72,7 @@ namespace MoreBotsAPI
             new FixRaidEndSpawnTypePatch().Enable();
             new StandartBotBrainActivatePatch().Enable();
             new SuitableFollowersListPatch().Enable();
-            new FenceLoyaltyWarnPatch().Enable();
+            new ShallBossAttackPatch().Enable();
             new NewGamePatch().Enable();
             new BotsControllerInitPatch().Enable();
             new FactionRaidEndPatch().Enable();
@@ -85,9 +85,9 @@ namespace MoreBotsAPI
 
             InitConfig();
 
-            int oldWildSpawnTypeConverter = Array.FindIndex<JsonConverter>(JsonSerializerSettingsClass.Converters, c => c.GetType() == typeof(GClass1866<WildSpawnType>));
-            LogSource.LogInfo($"Old WildSpawnTypeFromInt converter index: {oldWildSpawnTypeConverter} {JsonSerializerSettingsClass.Converters[oldWildSpawnTypeConverter]}");
-            JsonSerializerSettingsClass.Converters[oldWildSpawnTypeConverter] = new WildSpawnTypeFromIntConverter<WildSpawnType>(true);
+            int oldWildSpawnTypeConverter = Array.FindIndex<JsonConverter>(EftJsonConverters.Converters, c => c.GetType() == typeof(EnumConverter<WildSpawnType>));
+            LogSource.LogInfo($"Old WildSpawnTypeFromInt converter index: {oldWildSpawnTypeConverter} {EftJsonConverters.Converters[oldWildSpawnTypeConverter]}");
+            EftJsonConverters.Converters[oldWildSpawnTypeConverter] = new WildSpawnTypeFromIntConverter<WildSpawnType>(true);
         }
 
         public void CheckPlugins()

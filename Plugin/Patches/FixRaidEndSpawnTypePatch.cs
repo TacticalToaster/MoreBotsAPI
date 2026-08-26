@@ -8,15 +8,15 @@ namespace MoreBotsAPI.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(LocationStatisticsCollectorAbstractClass).GetMethod(nameof(LocationStatisticsCollectorAbstractClass.OnDeath), BindingFlags.Public | BindingFlags.Instance);
+            return typeof(BaseStatisticsManager).GetMethod(nameof(BaseStatisticsManager.OnDeath), BindingFlags.Public | BindingFlags.Instance);
         }
 
         [PatchPostfix]
-        protected static void PatchPostfix(LocationStatisticsCollectorAbstractClass __instance)
+        protected static void PatchPostfix(BaseStatisticsManager __instance)
         {
-            var role = __instance.Profile_0.EftStats.DeathCause.Role;
+            var role = __instance.Profile.EftStats.DeathCause.Role;
             if (CustomWildSpawnTypeManager.IsCustomWildSpawnType((int)role))
-                __instance.Profile_0.EftStats.DeathCause.Role = WildSpawnType.assault;
+                __instance.Profile.EftStats.DeathCause.Role = WildSpawnType.assault;
         }
     }
 }
