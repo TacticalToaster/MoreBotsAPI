@@ -2,9 +2,9 @@ using MoreBotsServer.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Controllers;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Config;
-using SPTarkov.Server.Core.Models.Spt.Server;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
@@ -18,15 +18,11 @@ public class MoreBotsCustomBotConfigService(
     MoreBotsLogger logger,
     ModHelper modHelper,
     JsonUtil jsonUtil,
-    ConfigServer configServer
+    BotConfig _botConfig
 )
 {
-    private BotConfig? _botConfig;
-
     public bool ProcessBotConfig(BotTypeConfig botConfigData, string botTypeName)
     {
-        if (_botConfig == null) _botConfig = configServer.GetConfig<BotConfig>();
-
         var botTypeNameLower = botTypeName.ToLowerInvariant();
 
         if (botConfigData == null)
@@ -71,8 +67,6 @@ public class MoreBotsCustomBotConfigService(
 
     public async Task LoadCustomBotConfigs(Assembly assembly, string? relativePath = null)
     {
-        if (_botConfig == null) _botConfig = configServer.GetConfig<BotConfig>();
-
         try
         {
             var assemblyLocation = modHelper.GetAbsolutePathToModFolder(assembly);
@@ -112,8 +106,6 @@ public class MoreBotsCustomBotConfigService(
 
     public async Task LoadCustomBotConfigsShared(Assembly assembly, string sharedFileName, List<string> botTypeNames)
     {
-        if (_botConfig == null) _botConfig = configServer.GetConfig<BotConfig>();
-
         try
         {
             var assemblyLocation = modHelper.GetAbsolutePathToModFolder(assembly);

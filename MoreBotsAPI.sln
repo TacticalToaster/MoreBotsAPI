@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.34928.147
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.12105.206 oobstable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin", "Plugin\Plugin.csproj", "{2CDFD586-355F-346C-92BF-961D4783A12E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prepatch", "Prepatch\Prepatch.csproj", "{27FE9EA3-B3CC-42BB-F737-5BC8A57D5D91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreBotsServer", "Server\MoreBotsServer.csproj", "{1C09D749-A4D0-DB88-4741-C23E4451F8B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{27FE9EA3-B3CC-42BB-F737-5BC8A57D5D91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27FE9EA3-B3CC-42BB-F737-5BC8A57D5D91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27FE9EA3-B3CC-42BB-F737-5BC8A57D5D91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C09D749-A4D0-DB88-4741-C23E4451F8B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C09D749-A4D0-DB88-4741-C23E4451F8B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C09D749-A4D0-DB88-4741-C23E4451F8B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C09D749-A4D0-DB88-4741-C23E4451F8B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

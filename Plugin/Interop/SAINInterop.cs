@@ -15,9 +15,9 @@ namespace MoreBotsAPI.Interop
     {
         public void Init()
         {
-            Plugin.LogSource.LogInfo("Initializing SAIN interop for MoreBotsAPI...");
+            //Plugin.LogSource.LogInfo("Initializing SAIN interop for MoreBotsAPI...");
             //AddSAINLayers();
-            CreateCustomBotTypes();
+            //CreateCustomBotTypes();
         }
 
         private static readonly string[] commonVanillaLayersToRemove = new string[]

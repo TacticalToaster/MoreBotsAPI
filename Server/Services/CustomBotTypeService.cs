@@ -2,9 +2,10 @@ using MoreBotsServer.Models;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Spt.Server;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
@@ -17,24 +18,18 @@ public class MoreBotsCustomBotTypeService(
     MoreBotsLogger logger,
     ModHelper modHelper,
     JsonUtil jsonUtil,
-    DatabaseService databaseService
+    BotTable botTable,
+    TemplateTable templateTable
 )
 {
-    private DatabaseTables? _databaseTables;
     public List<string> LoadedBotTypes { get; } = new();
     public Dictionary<int, string> CustomWildSpawnTypes { get; } = new();
-
-    private void GetDatabaseTables()
-    {
-        if (_databaseTables == null) _databaseTables = databaseService.GetTables();
-    }
 
     // Create custom bot types using your mod db folders.
     // Do note that types get added to the database fully lowercase. SPT requires it like that to work.
     // If you want to edit the type after it is created, make sure you account for the lowercase name when indexing the table.
     public async Task CreateCustomBotTypes(Assembly assembly, string? relativePath = null)
     {
-        GetDatabaseTables();
 
         try
         {
@@ -65,7 +60,7 @@ public class MoreBotsCustomBotTypeService(
                     continue;
                 }
 
-                _databaseTables.Bots.Types[lowerBotTypeName] = botTypeData;
+                botTable.Types[lowerBotTypeName] = botTypeData;
                 LoadedBotTypes.Add(lowerBotTypeName);
 
                 //logger.Info($"Successfully loaded custom bot type: {botTypeName}");
@@ -79,7 +74,6 @@ public class MoreBotsCustomBotTypeService(
 
     public async Task CreateCustomBotTypesShared(Assembly assembly, string sharedFileName, List<string> botTypeNames)
     {
-        GetDatabaseTables();
 
         try
         {
@@ -115,7 +109,7 @@ public class MoreBotsCustomBotTypeService(
             {
                 botTypeData = await jsonUtil.DeserializeFromFileAsync<BotType>(file);
                 var botTypeNameLower = botTypeName.ToLowerInvariant();
-                _databaseTables.Bots.Types[botTypeNameLower] = botTypeData;
+                botTable.Types[botTypeNameLower] = botTypeData;
                 LoadedBotTypes.Add(botTypeNameLower);
 
                 //logger.Info($"Successfully loaded shared custom bot type: {botTypeNameLower}");
@@ -156,8 +150,6 @@ public class MoreBotsCustomBotTypeService(
     // This lets you modify existing bot types without needing to redefine the entire type, or create multiple similar types with minor changes.
     public async Task LoadBotTypeReplace(Assembly assembly, string replaceFileName, List<string> botTypeNames)
     {
-        GetDatabaseTables();
-
         try
         {
             var assemblyLocation = modHelper.GetAbsolutePathToModFolder(assembly);
@@ -196,7 +188,7 @@ public class MoreBotsCustomBotTypeService(
 
                 botTypeData = await jsonUtil.DeserializeFromFileAsync<BotTypeReplace>(file);
 
-                ReplaceBotSettings(_databaseTables.Bots.Types[botTypeNameLower], botTypeData);
+                ReplaceBotSettings(botTable.Types[botTypeNameLower], botTypeData);
 
                 //logger.Info($"Successfully replaced settings in bot type: {botTypeNameLower}");
             }
@@ -209,8 +201,6 @@ public class MoreBotsCustomBotTypeService(
 
     public async Task LoadBotTypeReplaceByTypes(Assembly assembly, List<string> botTypeNames)
     {
-        GetDatabaseTables();
-
         try
         {
             var assemblyLocation = modHelper.GetAbsolutePathToModFolder(assembly);
@@ -250,7 +240,7 @@ public class MoreBotsCustomBotTypeService(
 
                 botTypeData = await jsonUtil.DeserializeFromFileAsync<BotTypeReplace>(file);
 
-                ReplaceBotSettings(_databaseTables.Bots.Types[botTypeNameLower], botTypeData);
+                ReplaceBotSettings(botTable.Types[botTypeNameLower], botTypeData);
 
                 //logger.Info($"Successfully replaced settings in bot type: {botTypeNameLower}");
             }
@@ -386,11 +376,9 @@ public class MoreBotsCustomBotTypeService(
 
     public Dictionary<string, Dictionary<string, DifficultyCategories>>? GetBotDifficulties(string url, EmptyRequestData info, string sessionID, string output)
     {
-        GetDatabaseTables();
-
         try
         {
-            var botDifficulties = _databaseTables.Bots.Types;
+            var botDifficulties = botTable.Types;
 
             Dictionary<string, Dictionary<string, DifficultyCategories>> result = new();
 

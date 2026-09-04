@@ -1,11 +1,12 @@
 using MoreBotsServer.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Items;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
-using SPTarkov.Server.Core.Models.Spt.Server;
-using SPTarkov.Server.Core.Models.Spt.Templates;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
@@ -18,7 +19,7 @@ public class LoadoutService(
     MoreBotsLogger logger,
     ModHelper modHelper,
     JsonUtil jsonUtil,
-    DatabaseService databaseService,
+    BotTable botTable,
     ItemHelper itemHelper
 )
 {
@@ -52,7 +53,7 @@ public class LoadoutService(
                     continue;
                 }
 
-                ProcessLoadouts(assembly, botTypeName, databaseService.GetTables().Bots.Types[botTypeName], UseTemplateLoadout(assembly, template, loadout));
+                ProcessLoadouts(assembly, botTypeName, botTable.Types[botTypeName], UseTemplateLoadout(assembly, template, loadout));
 
                 //logger.Info($"Successfully loaded custom loadout data for bot type: {botTypeName}");
             }
@@ -93,7 +94,7 @@ public class LoadoutService(
                     continue;
                 }
 
-                ProcessLoadouts(assembly, botTypeName, databaseService.GetTables().Bots.Types[botTypeName], loadout);
+                ProcessLoadouts(assembly, botTypeName, botTable.Types[botTypeName], loadout);
 
                 //logger.Info($"Successfully loaded custom loadout data for bot type: {botTypeName}");
             }
@@ -178,22 +179,21 @@ public class LoadoutService(
 
     private void AddModsToSlot(string item, string slot, List<string> mods, string type)
     {
-        var dbTables = databaseService.GetTables();
-        if (!dbTables.Bots.Types[type].BotInventory.Mods.ContainsKey(item))
+        if (!botTable.Types[type].BotInventory.Mods.ContainsKey(item))
         {
-            dbTables.Bots.Types[type].BotInventory.Mods[item] = new Dictionary<string, HashSet<MongoId>>();
+            botTable.Types[type].BotInventory.Mods[item] = new Dictionary<string, HashSet<MongoId>>();
         }
 
-        if (!dbTables.Bots.Types[type].BotInventory.Mods[item].ContainsKey(slot))
+        if (!botTable.Types[type].BotInventory.Mods[item].ContainsKey(slot))
         {
-            dbTables.Bots.Types[type].BotInventory.Mods[item][slot] = new HashSet<MongoId>();
+            botTable.Types[type].BotInventory.Mods[item][slot] = new HashSet<MongoId>();
         }
 
         foreach (var mod in mods)
         {
-            if (!dbTables.Bots.Types[type].BotInventory.Mods[item][slot].Contains(mod))
+            if (!botTable.Types[type].BotInventory.Mods[item][slot].Contains(mod))
             {
-                dbTables.Bots.Types[type].BotInventory.Mods[item][slot].Add(mod);
+                botTable.Types[type].BotInventory.Mods[item][slot].Add(mod);
             }
         }
     }
