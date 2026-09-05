@@ -35,3 +35,7 @@ Use the .NET 10 SDK and an installed SPT 4.1.3 dependency set. Pass `-p:SPTPath=
 ## Updated upstream base
 
 Merged upstream 4b4fdcdd18132360fe977744ba7f77f7400cdd74 (server SAIN interop). Its new registration service, model, contract DLL and 2.1 version are retained. The client no-op registration call stays disabled as upstream intended; the ToESain guard and awaited, cancellable profile flow remain. The original raid evidence predates this merge; the combined source is build-verified only.
+
+## Contribution build checks
+
+The publication working copies were built in Release against the installed SPT 4.1.3 assemblies with deployment disabled. Client/server builds passed for Icebreaker, MoreBotsAPI, BlackDiv and ManimalCSGas; the Backport prepatcher and DynamicMaps client also passed. Existing compiler warnings remain in several ports. Fika was not built as part of this contribution gate. These checks validate compilation, not untested gameplay.

@@ -36,7 +36,7 @@
       <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     <Private>false</Private></Reference>
   </ItemGroup>
-  
+
   <Target Condition="'$(DeployToGame)' == 'true'" Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(SPTPath)\BepInEx\patchers\$(TargetFileName)&quot;" />
   </Target>
