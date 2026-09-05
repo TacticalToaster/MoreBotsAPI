@@ -1,4 +1,4 @@
-﻿using Mono.Cecil;
+using Mono.Cecil;
 using MoreBotsAPI.Prepatch;
 using System.Collections.Generic;
 

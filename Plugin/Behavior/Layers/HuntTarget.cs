@@ -1,4 +1,4 @@
-﻿using DrakiaXYZ.BigBrain.Brains;
+using DrakiaXYZ.BigBrain.Brains;
 using EFT;
 using System;
 using System.Collections.Generic;

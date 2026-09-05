@@ -1,3 +1,6 @@
+using SPTarkov.Server.Core.Models.Eft.Common.Tables;
+using SPTarkov.Server.Core.Models.Eft.Match;
+using SPTarkov.Server.Core.Models.Eft.Profile;
 
 
 using SPTarkov.Server.Core.Models.Common;

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
@@ -12,33 +12,33 @@
   
   <ItemGroup>
 		<Reference Include="Assembly-CSharp">
-		  <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\Assembly-CSharp.dll</HintPath>
-		</Reference>
+		  <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\Assembly-CSharp.dll</HintPath>
+		<Private>false</Private></Reference>
 		<Reference Include="spt-common">
-		  <HintPath>..\..\..\BepInEx\plugins\spt\spt-common.dll</HintPath>
-		</Reference>
+		  <HintPath>$(SPTPath)\BepInEx\plugins\spt\spt-common.dll</HintPath>
+		<Private>false</Private></Reference>
     <Reference Include="0Harmony">
-      <HintPath>..\..\..\BepInEx\core\0Harmony.dll</HintPath>
-    </Reference>
+      <HintPath>$(SPTPath)\BepInEx\core\0Harmony.dll</HintPath>
+    <Private>false</Private></Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\..\..\BepInEx\core\BepInEx.dll</HintPath>
-    </Reference>
+      <HintPath>$(SPTPath)\BepInEx\core\BepInEx.dll</HintPath>
+    <Private>false</Private></Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>..\..\..\BepInEx\core\Mono.Cecil.dll</HintPath>
-    </Reference>
+      <HintPath>$(SPTPath)\BepInEx\core\Mono.Cecil.dll</HintPath>
+    <Private>false</Private></Reference>
 		<Reference Include="Newtonsoft.Json">
-		  <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\Newtonsoft.Json.dll</HintPath>
-		</Reference>
+		  <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\Newtonsoft.Json.dll</HintPath>
+		<Private>false</Private></Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
+      <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\UnityEngine.dll</HintPath>
+    <Private>false</Private></Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
+      <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    <Private>false</Private></Reference>
   </ItemGroup>
   
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\..\..\..\BepInEx\patchers\$(TargetFileName)&quot;" />
+  <Target Condition="'$(DeployToGame)' == 'true'" Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\$(SPTPath)\BepInEx\patchers\$(TargetFileName)&quot;" />
   </Target>
 
 </Project>

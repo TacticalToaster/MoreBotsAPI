@@ -1,4 +1,4 @@
-﻿using BepInEx.Logging;
+using BepInEx.Logging;
 using Comfort.Common;
 using EFT;
 using EFT.CameraControl;

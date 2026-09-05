@@ -1,4 +1,4 @@
-﻿using EFT;
+using EFT;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

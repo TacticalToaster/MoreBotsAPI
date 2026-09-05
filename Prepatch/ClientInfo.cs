@@ -1,4 +1,4 @@
-﻿namespace MoreBotsAPI
+namespace MoreBotsAPI
 {
     public static class ClientInfo
     {

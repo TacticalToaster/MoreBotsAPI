@@ -1,4 +1,4 @@
-﻿using DrakiaXYZ.BigBrain.Brains;
+using DrakiaXYZ.BigBrain.Brains;
 using EFT;
 using EFT.UI.Builds;
 using MoreBotsAPI.Components;

@@ -1,4 +1,4 @@
-﻿using BepInEx.Logging;
+using BepInEx.Logging;
 using Mono.Cecil;
 using System.Collections.Generic;
 using System.IO;

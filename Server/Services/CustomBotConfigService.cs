@@ -1,13 +1,15 @@
+using SPTarkov.Server.Core.Helpers.Server;
+using SPTarkov.Server.Core.Models.Eft.ItemEvent;
+using SPTarkov.Server.Core.Models.Eft.Match;
+using SPTarkov.Server.Core.Models.Eft.Profile;
 using MoreBotsServer.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Controllers;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Config;
-using SPTarkov.Server.Core.Models.Spt.Server;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
 using System.Reflection;
 
@@ -18,14 +20,14 @@ public class MoreBotsCustomBotConfigService(
     MoreBotsLogger logger,
     ModHelper modHelper,
     JsonUtil jsonUtil,
-    ConfigServer configServer
+    BotConfig botConfig
 )
 {
     private BotConfig? _botConfig;
 
     public bool ProcessBotConfig(BotTypeConfig botConfigData, string botTypeName)
     {
-        if (_botConfig == null) _botConfig = configServer.GetConfig<BotConfig>();
+        if (_botConfig == null) _botConfig = botConfig;
 
         var botTypeNameLower = botTypeName.ToLowerInvariant();
 
@@ -34,11 +36,11 @@ public class MoreBotsCustomBotConfigService(
             return false;
         }
 
-        _botConfig.PresetBatch[botTypeName] = botConfigData.PresetBatch ?? 1;
+        _botConfig.PresetBatch[botTypeNameLower] = botConfigData.PresetBatch ?? 1;
 
         if (botConfigData.IsBoss == true)
         {
-            _botConfig.Bosses.Add(botTypeName);
+            _botConfig.Bosses.Add(botTypeNameLower);
         }
 
         if (botConfigData.Durability != null)
@@ -71,7 +73,7 @@ public class MoreBotsCustomBotConfigService(
 
     public async Task LoadCustomBotConfigs(Assembly assembly, string? relativePath = null)
     {
-        if (_botConfig == null) _botConfig = configServer.GetConfig<BotConfig>();
+        if (_botConfig == null) _botConfig = botConfig;
 
         try
         {
@@ -112,7 +114,7 @@ public class MoreBotsCustomBotConfigService(
 
     public async Task LoadCustomBotConfigsShared(Assembly assembly, string sharedFileName, List<string> botTypeNames)
     {
-        if (_botConfig == null) _botConfig = configServer.GetConfig<BotConfig>();
+        if (_botConfig == null) _botConfig = botConfig;
 
         try
         {

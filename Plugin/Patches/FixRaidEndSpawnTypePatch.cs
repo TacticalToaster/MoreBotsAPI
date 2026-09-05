@@ -1,4 +1,4 @@
-﻿using EFT;
+using EFT;
 using SPT.Reflection.Patching;
 using System.Reflection;
 

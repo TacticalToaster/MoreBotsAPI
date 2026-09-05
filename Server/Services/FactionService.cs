@@ -1,11 +1,15 @@
+using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Models.Eft.ItemEvent;
+using SPTarkov.Server.Core.Models.Eft.Match;
+using SPTarkov.Server.Core.Models.Enums.RaidSettings;
+using SPTarkov.Server.Core.Services.Modding;
+using SPTarkov.Server.Core.Services.Profile;
 using MoreBotsServer.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Services.Mod;
 using SPTarkov.Server.Core.Utils;
 
 namespace MoreBotsServer.Services;
@@ -14,7 +18,7 @@ namespace MoreBotsServer.Services;
 public class FactionService
 {
     private readonly MoreBotsLogger logger;
-    private readonly DatabaseService databaseService;
+    private readonly BotTable botTable;
     private readonly ProfileDataService profileDataService;
     private readonly ProfileActivityService profileActivityService;
     private readonly JsonUtil jsonUtil;
@@ -24,7 +28,7 @@ public class FactionService
 
     public FactionService(
         MoreBotsLogger logger,
-        DatabaseService databaseService,
+        BotTable botTable,
         ProfileDataService profileDataService,
         ProfileActivityService profileActivityService,
         JsonUtil jsonUtil,
@@ -32,7 +36,7 @@ public class FactionService
     )
     {
         this.logger = logger;
-        this.databaseService = databaseService;
+        this.botTable = botTable;
         this.profileDataService = profileDataService;
         this.profileActivityService = profileActivityService;
         this.customBotTypeService = botTypeService;
@@ -57,13 +61,16 @@ public class FactionService
         return Factions;
     }
 
-    public Dictionary<string, List<string>> GetFactionsRevenges()
+    // SPT 4.1.3 profile extensions are asynchronous. Await the data service and
+    // propagate cancellation through the route instead of blocking a request
+    // thread or treating an unfinished Task as the persisted faction state.
+    public async Task<Dictionary<string, List<string>>> GetFactionsRevengesAsync(CancellationToken cancellationToken)
     {
         var profileRevenges = new Dictionary<string, List<string>>();
         foreach (string profileID in profileActivityService.GetActiveProfileIdsWithinMinutes(10))
         {
             profileRevenges[profileID] = new List<string>();
-            var profileData = profileDataService.GetProfileData<ProfileData>(profileID, ModKey) ?? new ProfileData();
+            var profileData = await profileDataService.GetProfileDataAsync<ProfileData>(profileID, ModKey, cancellationToken) ?? new ProfileData();
 
             var revengeData = profileData.RevengeRaidsLeft;
             foreach ((var faction, var raids) in revengeData)
@@ -74,7 +81,7 @@ public class FactionService
         return profileRevenges;
     }
 
-    public void AdjustFactionRevenge(UpdateRevengeRequest updateRevengeRequest)
+    public async Task AdjustFactionRevengeAsync(UpdateRevengeRequest updateRevengeRequest, CancellationToken cancellationToken)
     {
         var profileRevengeData = updateRevengeRequest.RevengeUpdate;
         if (profileRevengeData == null)
@@ -86,7 +93,7 @@ public class FactionService
         // TODO: update this so it only affects people who were in the raid that just ended
         foreach (string profileID in profileActivityService.GetActiveProfileIdsWithinMinutes(10))
         {
-            var revengeData = profileDataService.GetProfileData<ProfileData>(profileID, ModKey) ?? new ProfileData();
+            var revengeData = await profileDataService.GetProfileDataAsync<ProfileData>(profileID, ModKey, cancellationToken) ?? new ProfileData();
 
             foreach (var faction in revengeData.RevengeRaidsLeft.Keys)
             {
@@ -94,12 +101,12 @@ public class FactionService
                 logger.Info($"{profileID} revenge raids with faction {faction} decremented to {revengeData.RevengeRaidsLeft[faction]}.");
             }
             
-            profileDataService.SaveProfileData(profileID, ModKey, revengeData);
+            await profileDataService.SaveProfileDataAsync(profileID, ModKey, revengeData, cancellationToken);
         }
         
         foreach ((string profileID, List<string> revengeFactions) in profileRevengeData)
         {
-            var revengeData = profileDataService.GetProfileData<ProfileData>(profileID, ModKey) ?? new ProfileData();
+            var revengeData = await profileDataService.GetProfileDataAsync<ProfileData>(profileID, ModKey, cancellationToken) ?? new ProfileData();
             
             foreach (var revengeFaction in revengeFactions)
             {
@@ -114,7 +121,7 @@ public class FactionService
                 }
             }
             
-            profileDataService.SaveProfileData(profileID, ModKey, revengeData);
+            await profileDataService.SaveProfileDataAsync(profileID, ModKey, revengeData, cancellationToken);
             
         }
     }
@@ -153,7 +160,7 @@ public class FactionService
     {
         foreach (var type in types)
         {
-            if (databaseService.GetBots().Types.TryGetValue(type.ToLowerInvariant(), out var botType))
+            if (botTable.Types.TryGetValue(type.ToLowerInvariant(), out var botType))
             {
                 logger.Info($"Adding enemy faction {factionName} to {type}");
                 AddEnemyByFaction(botType, factionName);
@@ -177,7 +184,7 @@ public class FactionService
                     logger.Warning($"Bot type enum name not found for type '{type}' when setting enemies by faction '{factionName}'.");
                     continue;
                 }
-                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
+                if (botTable.Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
                 {
                     logger.Info($"Adding enemy faction {factionName} to {type}");
                     AddEnemyByFaction(botType, factionName);
@@ -210,7 +217,7 @@ public class FactionService
     {
         foreach (var type in types)
         {
-            if (databaseService.GetBots().Types.TryGetValue(type.ToLowerInvariant(), out var botType))
+            if (botTable.Types.TryGetValue(type.ToLowerInvariant(), out var botType))
             {
                 AddFriendlyByFaction(botType, factionName);
             }
@@ -235,7 +242,7 @@ public class FactionService
                     continue;
                 }
 
-                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
+                if (botTable.Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
                 {
                     AddFriendlyByFaction(botType, factionName);
                 }
@@ -267,7 +274,7 @@ public class FactionService
     {
         foreach (var type in types)
         {
-            if (databaseService.GetBots().Types.TryGetValue(type.ToLowerInvariant(), out var botType))
+            if (botTable.Types.TryGetValue(type.ToLowerInvariant(), out var botType))
             {
                 AddWarnByFaction(botType, factionName);
             }
@@ -292,7 +299,7 @@ public class FactionService
                     continue;
                 }
 
-                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
+                if (botTable.Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
                 {
                     AddWarnByFaction(botType, factionName);
                 }
@@ -324,7 +331,7 @@ public class FactionService
     {
         foreach (var type in types)
         {
-            if (databaseService.GetBots().Types.TryGetValue(type.ToLowerInvariant(), out var botType))
+            if (botTable.Types.TryGetValue(type.ToLowerInvariant(), out var botType))
             {
                 AddRevengeByFaction(botType, factionName);
             }
@@ -348,7 +355,7 @@ public class FactionService
                     logger.Warning($"Bot type enum name not found for type '{type}' when setting revenge by faction '{factionName}'.");
                     continue;
                 }
-                if (databaseService.GetBots().Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
+                if (botTable.Types.TryGetValue(Enum.GetName<WildSpawnType>(type)?.ToLowerInvariant() ?? customBotTypeService.GetCustomTypeNameOrEmpty((int)type), out var botType))
                 {
                     AddRevengeByFaction(botType, factionName);
                 }

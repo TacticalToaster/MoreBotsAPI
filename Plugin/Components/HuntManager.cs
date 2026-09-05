@@ -1,4 +1,4 @@
-﻿using Comfort.Common;
+using Comfort.Common;
 using EFT;
 using SPT.SinglePlayer.Utils.InRaid;
 using System;

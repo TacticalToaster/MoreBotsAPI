@@ -1,0 +1,5 @@
+<Project>
+  <!-- Override SPTPath with an installed SPT 4.1.3 root. DeployToGame remains opt-in. -->
+  <!-- Override SPTPath with an installed SPT 4.1.3 root. DeployToGame remains opt-in. -->
+  <PropertyGroup><SPTPath Condition="'$(SPTPath)' == ''">$(MSBuildThisFileDirectory)..\..\..\..</SPTPath></PropertyGroup>
+</Project>
