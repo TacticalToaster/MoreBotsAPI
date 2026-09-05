@@ -30,11 +30,12 @@ public class MoreBotsCustomBotConfigService(
             return false;
         }
 
-        _botConfig.PresetBatch[botTypeName] = botConfigData.PresetBatch ?? 1;
+        // SPT indexes custom roles by lowercase database key in these collections.
+        _botConfig.PresetBatch[botTypeNameLower] = botConfigData.PresetBatch ?? 1;
 
         if (botConfigData.IsBoss == true)
         {
-            _botConfig.Bosses.Add(botTypeName);
+            _botConfig.Bosses.Add(botTypeNameLower);
         }
 
         if (botConfigData.Durability != null)

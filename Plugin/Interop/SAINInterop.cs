@@ -1,4 +1,4 @@
-﻿using DrakiaXYZ.BigBrain.Brains;
+using DrakiaXYZ.BigBrain.Brains;
 using EFT;
 using HarmonyLib;
 using SAIN.Attributes;
@@ -15,9 +15,24 @@ namespace MoreBotsAPI.Interop
     {
         public void Init()
         {
-            //Plugin.LogSource.LogInfo("Initializing SAIN interop for MoreBotsAPI...");
+            Plugin.LogSource.LogInfo("Initializing SAIN interop for MoreBotsAPI...");
+            new Harmony("com.morebotsapi.sain-enum-compat").Patch(
+                AccessTools.Method(typeof(SAIN.Extensions.SainEnumMirrorExtensions), "ToESain", new[] { typeof(WildSpawnType) }),
+                prefix: new HarmonyMethod(typeof(SAINInterop), nameof(MapCustomRoleForSain)));
             //AddSAINLayers();
+            // Upstream 2.1 registers settings through its server interop.
+            // Retain the conversion guard for clients using SAIN's closed enum.
             //CreateCustomBotTypes();
+        }
+
+        // SAIN 4.5 keeps a separate, closed role enum. Use the role declared as
+        // the custom bot's vanilla brain only at that conversion boundary.
+        // The actual profile role remains custom for factions and BigBrain.
+        internal static void MapCustomRoleForSain(ref WildSpawnType type)
+        {
+            if (CustomWildSpawnTypeManager.GetCustomWildSpawnTypeDict().TryGetValue((int)type, out var custom)
+                && Enum.IsDefined(typeof(SAIN.Preset.Shared.Enums.ESainWildSpawnType), custom.BaseBrain))
+                type = (WildSpawnType)custom.BaseBrain;
         }
 
         private static readonly string[] commonVanillaLayersToRemove = new string[]

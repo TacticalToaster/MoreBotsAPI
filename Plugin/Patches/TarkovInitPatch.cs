@@ -1,4 +1,4 @@
-﻿using BepInEx.Bootstrap;
+using BepInEx.Bootstrap;
 using EFT;
 using EFT.AssetsManager;
 using EFT.InputSystem;
@@ -16,7 +16,7 @@ namespace MoreBotsAPI.Patches
         }
 
         [PatchPostfix]
-        protected static void PatchPostfix(IAssetsManager assetsManager, InputTree inputTree)
+        protected static void PatchPostfix(EFT.AssetsManager.IAssetsManager assetsManager, InputTree inputTree)
         {
             bool sainLoaded = Chainloader.PluginInfos.ContainsKey("me.sol.sain");
 

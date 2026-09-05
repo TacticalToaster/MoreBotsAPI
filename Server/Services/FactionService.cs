@@ -1,13 +1,15 @@
+using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Models.Eft.ItemEvent;
+using SPTarkov.Server.Core.Models.Eft.Match;
+using SPTarkov.Server.Core.Models.Enums.RaidSettings;
+using SPTarkov.Server.Core.Services.Modding;
+using SPTarkov.Server.Core.Services.Profile;
 using MoreBotsServer.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Services.Modding;
-using SPTarkov.Server.Core.Services.Profile;
 using SPTarkov.Server.Core.Utils;
 
 namespace MoreBotsServer.Services;
@@ -16,28 +18,28 @@ namespace MoreBotsServer.Services;
 public class FactionService
 {
     private readonly MoreBotsLogger logger;
+    private readonly BotTable botTable;
     private readonly ProfileDataService profileDataService;
     private readonly ProfileActivityService profileActivityService;
     private readonly JsonUtil jsonUtil;
-    private readonly BotTable botTable;
     private readonly MoreBotsCustomBotTypeService customBotTypeService;
 
     private const string ModKey = "MoreBotsAPI";
 
     public FactionService(
         MoreBotsLogger logger,
+        BotTable botTable,
         ProfileDataService profileDataService,
         ProfileActivityService profileActivityService,
         JsonUtil jsonUtil,
-        BotTable botTable,
         MoreBotsCustomBotTypeService botTypeService
     )
     {
         this.logger = logger;
+        this.botTable = botTable;
         this.profileDataService = profileDataService;
         this.profileActivityService = profileActivityService;
         this.customBotTypeService = botTypeService;
-        this.botTable = botTable;
         this.jsonUtil = jsonUtil;
         InitFactions();
     }
@@ -59,14 +61,16 @@ public class FactionService
         return Factions;
     }
 
-    public async Task<Dictionary<string, List<string>>> GetFactionsRevenges()
+    // SPT 4.1.3 profile extensions are asynchronous. Await the data service and
+    // propagate cancellation through the route instead of blocking a request
+    // thread or treating an unfinished Task as the persisted faction state.
+    public async Task<Dictionary<string, List<string>>> GetFactionsRevengesAsync(CancellationToken cancellationToken)
     {
         var profileRevenges = new Dictionary<string, List<string>>();
         foreach (string profileID in profileActivityService.GetActiveProfileIdsWithinMinutes(10))
         {
             profileRevenges[profileID] = new List<string>();
-
-            var profileData = await profileDataService.GetProfileDataAsync<ProfileData>(profileID, ModKey) ?? new ProfileData();        
+            var profileData = await profileDataService.GetProfileDataAsync<ProfileData>(profileID, ModKey, cancellationToken) ?? new ProfileData();
 
             var revengeData = profileData.RevengeRaidsLeft;
             foreach ((var faction, var raids) in revengeData)
@@ -77,7 +81,7 @@ public class FactionService
         return profileRevenges;
     }
 
-    public async void AdjustFactionRevenge(UpdateRevengeRequest updateRevengeRequest)
+    public async Task AdjustFactionRevengeAsync(UpdateRevengeRequest updateRevengeRequest, CancellationToken cancellationToken)
     {
         var profileRevengeData = updateRevengeRequest.RevengeUpdate;
         if (profileRevengeData == null)
@@ -89,7 +93,7 @@ public class FactionService
         // TODO: update this so it only affects people who were in the raid that just ended
         foreach (string profileID in profileActivityService.GetActiveProfileIdsWithinMinutes(10))
         {
-            var revengeData = await profileDataService.GetProfileDataAsync<ProfileData>(profileID, ModKey) ?? new ProfileData();
+            var revengeData = await profileDataService.GetProfileDataAsync<ProfileData>(profileID, ModKey, cancellationToken) ?? new ProfileData();
 
             foreach (var faction in revengeData.RevengeRaidsLeft.Keys)
             {
@@ -97,12 +101,12 @@ public class FactionService
                 logger.Info($"{profileID} revenge raids with faction {faction} decremented to {revengeData.RevengeRaidsLeft[faction]}.");
             }
             
-            profileDataService.SaveProfileDataAsync(profileID, ModKey, revengeData);
+            await profileDataService.SaveProfileDataAsync(profileID, ModKey, revengeData, cancellationToken);
         }
         
         foreach ((string profileID, List<string> revengeFactions) in profileRevengeData)
         {
-            var revengeData = await profileDataService.GetProfileDataAsync<ProfileData>(profileID, ModKey) ?? new ProfileData();
+            var revengeData = await profileDataService.GetProfileDataAsync<ProfileData>(profileID, ModKey, cancellationToken) ?? new ProfileData();
             
             foreach (var revengeFaction in revengeFactions)
             {
@@ -117,7 +121,7 @@ public class FactionService
                 }
             }
             
-            profileDataService.SaveProfileDataAsync(profileID, ModKey, revengeData);
+            await profileDataService.SaveProfileDataAsync(profileID, ModKey, revengeData, cancellationToken);
             
         }
     }

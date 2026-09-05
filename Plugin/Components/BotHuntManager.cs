@@ -1,4 +1,4 @@
-﻿using EFT;
+using EFT;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,7 +83,7 @@ namespace MoreBotsAPI.Components
 
             return botOwner.BotFollower.BossToFollow.Position;
 
-            /*var searchData = new CoverSearchData(regroupPoint, botOwner.CoverSearchInfo, CoverShootType.shoot, 10f * 10f, 0f, CoverSearchType.distToBot, null, null, null, ECheckSHootHide.shootAndHide, new CoverSearchDefenceDataClass(botOwner.Settings.FileSettings.Cover.MIN_DEFENCE_LEVEL), PointsArrayType.byShootType, true);
+            /*var searchData = new CoverSearchData(regroupPoint, botOwner.CoverSearchInfo, CoverShootType.shoot, 10f * 10f, 0f, CoverSearchType.distToBot, null, null, null, ECheckSHootHide.shootAndHide, new CoverSearchDefenceData(botOwner.Settings.FileSettings.Cover.MIN_DEFENCE_LEVEL), PointsArrayType.byShootType, true);
             var coverPoint = botOwner.BotsGroup.CoverPointMaster.GetCoverPointMain(searchData, true);
             botOwner.Memory.SetCoverPoints(coverPoint);
             return coverPoint;*/

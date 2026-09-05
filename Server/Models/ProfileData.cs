@@ -1,4 +1,4 @@
-﻿namespace MoreBotsServer.Models;
+namespace MoreBotsServer.Models;
 
 public class ProfileData
 {
