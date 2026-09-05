@@ -111,6 +111,8 @@ public class FactionManager : MonoBehaviourSingleton<FactionManager>
     {
         var result = RequestHandler.GetJson("/morebotsapi/getrevenges");
         Plugin.LogSource.LogInfo($"[MOREBOTSAPI] Loading faction raid revenges from server...");
+        Plugin.LogSource.LogInfo(
+    $"[MOREBOTSAPI] Raw getrevenges response: {result}");
         var revenges = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(result);
         
         RevengeRaidsLeftByProfile = revenges;

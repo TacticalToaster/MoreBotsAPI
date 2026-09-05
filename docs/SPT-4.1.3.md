@@ -31,3 +31,7 @@ The migration used installed SPT 4.1.3 assemblies and these guides:
 
 Use the .NET 10 SDK and an installed SPT 4.1.3 dependency set. Pass `-p:SPTPath=<installation-root>` to dotnet build; the fallback expects this repository under a development tree. DeployToGame defaults to disabled. Build the client and server projects in Release, and the companion dependency ports first. Proprietary game DLLs are local references and must not be committed.
 
+
+## Updated upstream base
+
+Merged upstream 4b4fdcdd18132360fe977744ba7f77f7400cdd74 (server SAIN interop). Its new registration service, model, contract DLL and 2.1 version are retained. The client no-op registration call stays disabled as upstream intended; the ToESain guard and awaited, cancellable profile flow remain. The original raid evidence predates this merge; the combined source is build-verified only.

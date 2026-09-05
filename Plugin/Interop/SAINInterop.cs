@@ -20,7 +20,9 @@ namespace MoreBotsAPI.Interop
                 AccessTools.Method(typeof(SAIN.Extensions.SainEnumMirrorExtensions), "ToESain", new[] { typeof(WildSpawnType) }),
                 prefix: new HarmonyMethod(typeof(SAINInterop), nameof(MapCustomRoleForSain)));
             //AddSAINLayers();
-            CreateCustomBotTypes();
+            // Upstream 2.1 registers settings through its server interop.
+            // Retain the conversion guard for clients using SAIN's closed enum.
+            //CreateCustomBotTypes();
         }
 
         // SAIN 4.5 keeps a separate, closed role enum. Use the role declared as

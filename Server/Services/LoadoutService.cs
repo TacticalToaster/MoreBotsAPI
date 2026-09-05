@@ -1,18 +1,14 @@
-using SPTarkov.Server.Core.Constants;
-using SPTarkov.Server.Core.Helpers.Items;
-using SPTarkov.Server.Core.Helpers.Server;
-using SPTarkov.Server.Core.Models.Eft.ItemEvent;
-using SPTarkov.Server.Core.Models.Eft.Match;
-using SPTarkov.Server.Core.Models.Eft.Profile;
-using SPTarkov.Server.Core.Models.Spt.Config;
-using SPTarkov.Server.Core.Models.Spt.Tables;
 using MoreBotsServer.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Items;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Models.Utils;
+using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
 using System.Reflection;
 
@@ -183,7 +179,6 @@ public class LoadoutService(
 
     private void AddModsToSlot(string item, string slot, List<string> mods, string type)
     {
-        
         if (!botTable.Types[type].BotInventory.Mods.ContainsKey(item))
         {
             botTable.Types[type].BotInventory.Mods[item] = new Dictionary<string, HashSet<MongoId>>();

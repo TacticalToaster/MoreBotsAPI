@@ -38,7 +38,7 @@
   </ItemGroup>
   
   <Target Condition="'$(DeployToGame)' == 'true'" Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\$(SPTPath)\BepInEx\patchers\$(TargetFileName)&quot;" />
+    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(SPTPath)\BepInEx\patchers\$(TargetFileName)&quot;" />
   </Target>
 
 </Project>

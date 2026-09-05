@@ -44,4 +44,8 @@
   </Target>
 
   <ItemGroup><Reference Include="SemanticVersioning"><HintPath>$(SPTPath)\SPT_Runtime\SemanticVersioning.dll</HintPath><Private>false</Private></Reference></ItemGroup>
+  <ItemGroup>
+    <!-- Retain upstream's optional SAIN server-registration contract. -->
+    <Reference Include="SAIN.ServerInterop"><HintPath>References\SAIN.ServerInterop.dll</HintPath></Reference>
+  </ItemGroup>
 </Project>
