@@ -29,8 +29,22 @@ namespace MoreBotsAPI.Prepatch
         private static bool ShouldPatchAssembly()
         {
             var patcherLoc = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var bepDir = Directory.GetParent(patcherLoc);
-            var modDllLoc = Path.Combine(bepDir.FullName, "plugins", "MoreBotsPlugin", "MoreBotsPlugin.dll");
+
+            if (string.IsNullOrEmpty(patcherLoc))
+                return false;
+
+            var nestedDir = Directory.GetParent(patcherLoc);
+            var bepDir = nestedDir?.Parent;
+
+            if (bepDir == null)
+                return false;
+
+            var modDllLoc = Path.Combine(
+                bepDir.FullName,
+                "plugins",
+                "MoreBotsPlugin",
+                "MoreBotsPlugin.dll"
+            );
 
             return File.Exists(modDllLoc);
         }
