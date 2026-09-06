@@ -30,7 +30,7 @@ namespace MoreBotsAPI.Prepatch
         {
             var patcherLoc = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var bepDir = Directory.GetParent(patcherLoc);
-            var modDllLoc = Path.Combine(bepDir.FullName, "plugins", "MoreBotsAPI", "MoreBotsPlugin.dll");
+            var modDllLoc = Path.Combine(bepDir.FullName, "plugins", "MoreBotsPlugin", "MoreBotsPlugin.dll");
 
             return File.Exists(modDllLoc);
         }
