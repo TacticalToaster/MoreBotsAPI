@@ -12,6 +12,8 @@ using SPTarkov.Server.Core.Utils;
 using System.Reflection;
 using MoreBotsServer.Models;
 using SPTarkov.Common.Models.Logging;
+using Range = SemanticVersioning.Range;
+
 
 namespace MoreBotsServer;
 
@@ -24,7 +26,10 @@ public record ModMetadata : IModMetadata
     public SemanticVersioning.Version Version { get; init; } = new(2, 1, 1);
     public SemanticVersioning.Range SptVersion { get; init; } = new("~4.1.5");
     public List<string>? Incompatibilities { get; init; }
-    public Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; }
+    public Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; } = new()
+    {
+        { "me.sol.sain", new Range("~4.5.1") }
+    };
     public string? Url { get; init; }
     public string License { get; init; } = "MIT";
 
