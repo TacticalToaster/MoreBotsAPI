@@ -11,6 +11,8 @@ using SAIN;
 
 namespace MoreBotsAPI.Interop
 {
+
+    // OBSOLETE as of SPT 4.1.x
     public class SAINInterop
     {
         public void Init()

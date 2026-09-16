@@ -1,7 +1,4 @@
-﻿using HarmonyLib.Tools;
-using MoreBotsServer.Models;
-using SAIN.ServerInterop;
-using SPTarkov.Common.Models.Logging;
+﻿using MoreBotsServer.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
 using System;
@@ -9,8 +6,10 @@ using System.Collections.Generic;
 
 namespace MoreBotsServer.Interop;
 
-[Injectable(InjectionType.Singleton, TypePriority = OnLoadOrder.Preload + 1)]
-public sealed class SainInteropRegistration(ISptLogger<SainInteropRegistration> logger)
+[Injectable(
+    InjectionType.Singleton,
+    TypePriority = OnLoadOrder.Preload + 1)]
+public sealed class SainInteropRegistration
 {
     private readonly Dictionary<int, MoreBotsSainBotTypeRegistration>
         _customWildSpawnTypes = [];
@@ -33,14 +32,14 @@ public sealed class SainInteropRegistration(ISptLogger<SainInteropRegistration> 
         if (string.IsNullOrWhiteSpace(registration.Name))
         {
             throw new ArgumentException(
-                "A SAIN bot registration must have a valid Name.",
+                "A SAIN-compatible bot registration must have a valid Name.",
                 nameof(registration));
         }
 
         if (string.IsNullOrWhiteSpace(registration.BotDbKey))
         {
             throw new ArgumentException(
-                "A SAIN bot registration must have a valid BotDbKey.",
+                "A SAIN-compatible bot registration must have a valid BotDbKey.",
                 nameof(registration));
         }
 
@@ -48,7 +47,7 @@ public sealed class SainInteropRegistration(ISptLogger<SainInteropRegistration> 
             registration.BrainsToApply.Count == 0)
         {
             throw new ArgumentException(
-                "A SAIN bot registration must specify at least one brain.",
+                "A SAIN-compatible bot registration must specify at least one brain.",
                 nameof(registration));
         }
 
@@ -86,51 +85,5 @@ public sealed class SainInteropRegistration(ISptLogger<SainInteropRegistration> 
         _customWildSpawnTypes.Add(registration.WildSpawnType, registration);
         _customTypeNames.Add(registration.Name, registration);
         _customTypeDbKeys.Add(registration.BotDbKey, registration);
-    }
-
-    [Injectable(TypePriority = OnLoadOrder.PostLoad + 1)]
-    internal sealed class SainInteropPostLoad(
-        ISptLogger<SainInteropPostLoad> logger,
-        IServiceProvider services,
-        SainInteropRegistration sainInterop) : IOnLoad
-    {
-        public async Task OnLoadAsync(
-            CancellationToken cancellationToken = default)
-        {
-            var sain = services.GetService<ISainBotTypeRegistry>();
-
-            if (sain is null)
-            {
-                logger.Warning(
-                    "SAIN server interop was not found; no custom SAIN bot types were registered.");
-
-                return;
-            }
-            var count = 0;
-
-            foreach (var registration in sainInterop.Registrations)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                await sain.RegisterAsync(
-                    new SainBotTypeRegistration
-                    {
-                        Name = registration.Name,
-                        WildSpawnType = registration.WildSpawnType,
-                        BotDbKey = registration.BotDbKey,
-                        Section = registration.Section,
-                        Description = registration.Description,
-                        DifficultyModifier = registration.DifficultyModifier,
-                        BaseBrain = registration.BaseBrain,
-                        BrainsToApply = [.. registration.BrainsToApply],
-                        LayersToRemove = registration.LayersToRemove is null
-                            ? null
-                            : [.. registration.LayersToRemove],
-                    },
-                    cancellationToken);
-
-                count++;
-            }
-        }
     }
 }

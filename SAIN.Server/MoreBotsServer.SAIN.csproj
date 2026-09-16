@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>MoreBotsServer.SAIN</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <Version>0.0.1</Version>
+    <!-- The two lines below will set the output path for the binaries -->
+    <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AssemblyName>MoreBotsServer.SAIN</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="config.jsonc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="fastJSON5" Version="1.0.4">
+      <Private>true</Private>
+      <CopyLocal>true</CopyLocal>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+    </PackageReference>
+    <PackageReference Include="SPTushonka.Common" Version="4.1.3" />
+    <PackageReference Include="SPTushonka.DI" Version="4.1.3" />
+    <PackageReference Include="SPTushonka.Reflection" Version="4.1.3" />
+    <PackageReference Include="SPTushonka.Server.Core" Version="4.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Server\MoreBotsServer.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="@echo off&#xA;setlocal enabledelayedexpansion&#xA;&#xA;REM Set variables&#xA;set MODNAME=$(TargetName)&#xA;set DLLPATH=$(TargetDir)$(TargetName).dll&#xA;set OUTDIR=..\..\..\SPT_Runtime\user\mods\MoreBotsServer&#xA;set RESOURCESDIR=$(ProjectDir)Resources&#xA;set BUILDOUTDIR=..\Build\SPT_Runtime\user\mods\MoreBotsServer&#xA;&#xA;REM Create output directories if they don't exist&#xA;if not exist &quot;%25OUTDIR%25&quot; mkdir &quot;%25OUTDIR%25&quot;&#xA;if not exist &quot;%25BUILDOUTDIR%25&quot; mkdir &quot;%25BUILDOUTDIR%25&quot;&#xA;&#xA;&#xA;REM Copy the DLL file to SPT&#xA;copy /Y &quot;%25DLLPATH%25&quot; &quot;%25OUTDIR%25\&quot; &gt;nul 2&gt;&amp;1&#xA;echo [PostBuild] Copied %25MODNAME%25.dll to %25OUTDIR%25&#xA;&#xA;REM Copy all contents from Resources folder recursively to SPT&#xA;if exist &quot;%25RESOURCESDIR%25&quot; (&#xA;    xcopy &quot;%25RESOURCESDIR%25&quot; &quot;%25OUTDIR%25&quot; /E /I /Y &gt;nul 2&gt;&amp;1&#xA;    echo [PostBuild] Copied Resources to %25OUTDIR%25&#xA;) else (&#xA;    echo [PostBuild] Warning: Resources folder not found at %25RESOURCESDIR%25&#xA;)&#xA;&#xA;REM Copy the DLL file to Build folder&#xA;copy /Y &quot;%25DLLPATH%25&quot; &quot;%25BUILDOUTDIR%25\&quot; &gt;nul 2&gt;&amp;1&#xA;echo [PostBuild] Copied %25MODNAME%25.dll to %25BUILDOUTDIR%25&#xA;&#xA;REM Copy all contents from Resources folder recursively to Build folder&#xA;if exist &quot;%25RESOURCESDIR%25&quot; (&#xA;    xcopy &quot;%25RESOURCESDIR%25&quot; &quot;%25BUILDOUTDIR%25&quot; /E /I /Y &gt;nul 2&gt;&amp;1&#xA;    echo [PostBuild] Copied Resources to %25BUILDOUTDIR%25&#xA;) else (&#xA;    echo [PostBuild] Warning: Resources folder not found at %25RESOURCESDIR%25&#xA;)&#xA;&#xA;echo [PostBuild] Build output: %25OUTDIR%25 and %25BUILDOUTDIR%25&#xA;endlocal&#xA;" />
+  </Target>
+</Project>
