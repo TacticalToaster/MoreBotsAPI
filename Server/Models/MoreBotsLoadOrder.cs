@@ -7,4 +7,6 @@ public static class MoreBotsLoadOrder
     public const int LoadFactions = OnLoadOrder.Preload + 80080;
 
     public const int LoadBots = OnLoadOrder.Preload + 80085;
+
+    public const int AddSpawns = OnLoadOrder.PostLoad + 100000;
 }
