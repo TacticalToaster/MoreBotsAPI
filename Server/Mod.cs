@@ -98,7 +98,7 @@ public class MoreBotsAPI(
     }
 }
 
-[Injectable(TypePriority = OnLoadOrder.Routers + 30)]
+[Injectable]
 public class MoreBotsSettingsRouter : DynamicRouter
 {
     private static HttpResponseUtil _httpResponseUtil;
