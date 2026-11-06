@@ -18,7 +18,6 @@ using UnityEngine;
 namespace MoreBotsAPI
 {
     [BepInDependency("xyz.drakia.bigbrain", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.fika.core", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(ClientInfo.GUID, ClientInfo.PluginName, ClientInfo.Version)]
     public class Plugin : BaseUnityPlugin
@@ -68,7 +67,6 @@ namespace MoreBotsAPI
                 }
             }
 
-            new TarkovInitPatch().Enable(); //For Sain stuff
             new FixRaidEndSpawnTypePatch().Enable();
             new StandartBotBrainActivatePatch().Enable();
             new SuitableFollowersListPatch().Enable();

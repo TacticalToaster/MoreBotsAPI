@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prepatch", "Prepatch\Prepat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreBotsServer", "Server\MoreBotsServer.csproj", "{1C09D749-A4D0-DB88-4741-C23E4451F8B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreBotsServer.SAIN", "SAIN.Server\MoreBotsServer.SAIN.csproj", "{F1D15AFD-1B90-CF1E-8A66-F8AE2F4E8332}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{1C09D749-A4D0-DB88-4741-C23E4451F8B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C09D749-A4D0-DB88-4741-C23E4451F8B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C09D749-A4D0-DB88-4741-C23E4451F8B0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F1D15AFD-1B90-CF1E-8A66-F8AE2F4E8332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1D15AFD-1B90-CF1E-8A66-F8AE2F4E8332}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1D15AFD-1B90-CF1E-8A66-F8AE2F4E8332}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1D15AFD-1B90-CF1E-8A66-F8AE2F4E8332}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
