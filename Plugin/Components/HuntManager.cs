@@ -36,15 +36,29 @@ namespace MoreBotsAPI.Components
 
         public void OnBotCreated(BotOwner bot)
         {
-            if (!bot.SpawnProfileData.SpawnParams.Id_spawn.ToLower().Contains("hunt")) return;
+            try
+            {
+                var spawnId = bot?.SpawnProfileData?.SpawnParams?.Id_spawn;
+                if (spawnId == null || !spawnId.ToLower().Contains("hunt"))
+                {
+                    return;
+                }
 
-            var huntManager = bot.gameObject.GetOrAddComponent<BotHuntManager>();
+                var huntManager = bot.gameObject.GetOrAddComponent<BotHuntManager>();
 
-            if (huntManager.huntTarget != null) return;
-            
-            huntManager.Init(bot, this);
-            OnBotHuntInit?.Invoke(huntManager);
-            FindFirstHuntTarget(huntManager);
+                if (huntManager.huntTarget != null)
+                {
+                    return;
+                }
+
+                huntManager.Init(bot, this);
+                OnBotHuntInit?.Invoke(huntManager);
+                FindFirstHuntTarget(huntManager);
+            }
+            catch (Exception ex)
+            {
+                Plugin.LogSource.LogError($"[MoreBotsAPI] Failed to set up hunt for {bot?.name}: {ex}");
+            }
         }
 
         public void AddHuntTarget(BotsGroup hunters, IPlayer hunted)
@@ -148,7 +162,10 @@ namespace MoreBotsAPI.Components
 
                     foreach (var follower in hunter.botOwner.BotsGroup._members)
                     {
-                        follower.GetComponent<BotHuntManager>().huntTarget = huntGroups[hunter.botOwner.BotsGroup];
+                        if (follower.TryGetComponent<BotHuntManager>(out var followerManager))
+                        {
+                            followerManager.huntTarget = huntGroups[hunter.botOwner.BotsGroup];
+                        }
                     }
 
                     
